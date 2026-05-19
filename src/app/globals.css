@@ -393,3 +393,9 @@
   gap: 8px;
   color: var(--ink);
 }
+
+/* ===================== Pulse ring (acompanhamento público) ===================== */
+@keyframes pulse-ring {
+  0%   { transform: scale(.9); opacity: 1; }
+  100% { transform: scale(1.2); opacity: 0; }
+}
