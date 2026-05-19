@@ -9,7 +9,7 @@ import { StatusBadge } from '@/components/status-badge'
 import { PlacaTag } from '@/components/placa-tag'
 import { Timeline } from '@/components/timeline'
 import { moneyBR } from '@/components/money'
-import { waLink } from '@/lib/whatsapp'
+import { tipoMsgParaStatus } from '@/lib/whatsapp'
 import { STATUS_TRANSITIONS } from '@/lib/constants'
 import type { LavagemStatus } from '@/lib/constants'
 import type { LavagemComDetalhes, EventoLavagem } from '@/lib/types'
@@ -35,9 +35,10 @@ interface LavagemDetalheModalProps {
   lavagem: LavagemComDetalhes | null
   onClose: () => void
   onOcorrencia?: (lavagemId: string, descricaoAtual?: string) => void
+  onWhatsApp?: (lavagem: LavagemComDetalhes, tipo: string) => void
 }
 
-export function LavagemDetalheModal({ lavagem, onClose, onOcorrencia }: LavagemDetalheModalProps) {
+export function LavagemDetalheModal({ lavagem, onClose, onOcorrencia, onWhatsApp }: LavagemDetalheModalProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [eventos, setEventos] = useState<EventoLavagem[]>([])
@@ -82,8 +83,12 @@ export function LavagemDetalheModal({ lavagem, onClose, onOcorrencia }: LavagemD
       }
       router.refresh()
       onClose()
+      if (onWhatsApp) {
+        const updatedLav = { ...lavagem, status_atual: novoStatus }
+        onWhatsApp(updatedLav as LavagemComDetalhes, tipoMsgParaStatus(novoStatus))
+      }
     })
-  }, [lavagem, router, onClose])
+  }, [lavagem, router, onClose, onWhatsApp])
 
   const handleCopy = useCallback(() => {
     if (!lavagem) return
@@ -292,15 +297,17 @@ export function LavagemDetalheModal({ lavagem, onClose, onOcorrencia }: LavagemD
 
             {/* Botoes gerais */}
             <div className="mt-4 flex flex-wrap gap-2">
-              <a
-                href={waLink(cliente.whatsapp, `Oi ${cliente.nome.split(' ')[0]}, sobre seu ${veiculo.placa}...`)}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex h-11 items-center justify-center gap-2 rounded-[var(--radius-btn)] bg-[#25D366] px-4 text-sm font-semibold text-white transition-all hover:bg-[#20bd5b] active:translate-y-px"
+              <button
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-[var(--radius-btn)] bg-[#25D366] px-4 text-sm font-semibold text-white transition-all hover:bg-[#20bd5b] active:translate-y-px cursor-pointer"
+                onClick={() => {
+                  if (onWhatsApp && lavagem) {
+                    onWhatsApp(lavagem, 'manual')
+                  }
+                }}
               >
                 <WhatsAppIcon />
                 Avisar cliente no WhatsApp
-              </a>
+              </button>
               <button
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-[var(--radius-btn)] border border-[var(--line)] bg-[var(--surface)] px-4 text-sm font-semibold text-[var(--ink)] transition-all hover:bg-[var(--bg-2)] active:translate-y-px"
                 onClick={handleCopy}

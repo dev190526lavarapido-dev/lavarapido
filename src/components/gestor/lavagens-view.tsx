@@ -1,15 +1,18 @@
 'use client'
 
-import { useState, useMemo, useCallback, useTransition } from 'react'
+import { useState, useEffect, useMemo, useCallback, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
 import { Search, Plus } from 'lucide-react'
 import { STATUS_META, STATUS_TRANSITIONS } from '@/lib/constants'
 import type { LavagemStatus } from '@/lib/constants'
-import type { LavagemComDetalhes } from '@/lib/types'
+import type { LavagemComDetalhes, ConfigLoja } from '@/lib/types'
 import { mudarStatus } from '@/server/actions/lavagens'
+import { tipoMsgParaStatus } from '@/lib/whatsapp'
+import { createClient } from '@/lib/supabase/client'
 import { LavagemCard } from './lavagem-card'
 import { LavagemDetalheModal } from '@/components/modals/lavagem-detalhe'
 import { OcorrenciaModal } from '@/components/modals/ocorrencia-modal'
+import { WhatsAppModal } from '@/components/modals/whatsapp-modal'
 import { cn } from '@/lib/utils'
 
 /* ============ Column config ============ */
@@ -37,6 +40,19 @@ export function LavagensView({ lavagens }: LavagensViewProps) {
   const [hoverCol, setHoverCol] = useState<LavagemStatus | null>(null)
   const [selectedLavagem, setSelectedLavagem] = useState<LavagemComDetalhes | null>(null)
   const [ocorrenciaLavagemId, setOcorrenciaLavagemId] = useState<string | null>(null)
+  const [whatsappState, setWhatsappState] = useState<{ lavagem: LavagemComDetalhes; tipo: string } | null>(null)
+  const [loja, setLoja] = useState<ConfigLoja | null>(null)
+
+  // Fetch config loja once
+  useEffect(() => {
+    createClient()
+      .from('configuracoes_loja')
+      .select('*')
+      .single()
+      .then(({ data }) => {
+        if (data) setLoja(data as ConfigLoja)
+      })
+  }, [])
 
   /* ============ Client-side search filter ============ */
   const filtered = useMemo(() => {
@@ -64,6 +80,14 @@ export function LavagensView({ lavagens }: LavagensViewProps) {
     return c
   }, [filtered, byStatus])
 
+  /* ============ WhatsApp callback ============ */
+  const handleWhatsApp = useCallback(
+    (lav: LavagemComDetalhes, tipo: string) => {
+      setWhatsappState({ lavagem: lav, tipo })
+    },
+    [],
+  )
+
   /* ============ Status change handler ============ */
   const handleStatusChange = useCallback(
     (lavagemId: string, novoStatus: LavagemStatus) => {
@@ -74,9 +98,15 @@ export function LavagensView({ lavagens }: LavagensViewProps) {
           return
         }
         router.refresh()
+        // Open WhatsApp modal after status change
+        const lav = lavagens.find((l) => l.id === lavagemId)
+        if (lav) {
+          const updatedLav = { ...lav, status_atual: novoStatus }
+          setWhatsappState({ lavagem: updatedLav as LavagemComDetalhes, tipo: tipoMsgParaStatus(novoStatus) })
+        }
       })
     },
-    [router],
+    [router, lavagens],
   )
 
   /* ============ Drag & drop ============ */
@@ -155,6 +185,7 @@ export function LavagensView({ lavagens }: LavagensViewProps) {
             onStatusChange={handleStatusChange}
             onOpen={(lav) => setSelectedLavagem(lav)}
             onOcorrencia={(id) => setOcorrenciaLavagemId(id)}
+            onWhatsApp={(lav, tipo) => handleWhatsApp(lav, tipo)}
             isDragging={dragId === l.id}
             onDragStart={() => setDragId(l.id)}
             onDragEnd={() => setDragId(null)}
@@ -267,6 +298,9 @@ export function LavagensView({ lavagens }: LavagensViewProps) {
                     key={l.id}
                     lavagem={l}
                     onStatusChange={handleStatusChange}
+                    onOpen={(lav) => setSelectedLavagem(lav)}
+                    onOcorrencia={(id) => setOcorrenciaLavagemId(id)}
+                    onWhatsApp={(lav, tipo) => handleWhatsApp(lav, tipo)}
                     isDragging={dragId === l.id}
                     onDragStart={() => setDragId(l.id)}
                     onDragEnd={() => setDragId(null)}
@@ -287,6 +321,10 @@ export function LavagensView({ lavagens }: LavagensViewProps) {
             setSelectedLavagem(null)
             setOcorrenciaLavagemId(id)
           }}
+          onWhatsApp={(lav, tipo) => {
+            setSelectedLavagem(null)
+            handleWhatsApp(lav, tipo)
+          }}
         />
       )}
 
@@ -295,6 +333,22 @@ export function LavagensView({ lavagens }: LavagensViewProps) {
           lavagemId={ocorrenciaLavagemId}
           descricaoAtual={lavagens.find((l) => l.id === ocorrenciaLavagemId)?.ocorrencia_descricao || undefined}
           onClose={() => setOcorrenciaLavagemId(null)}
+          onWhatsApp={() => {
+            const lav = lavagens.find((l) => l.id === ocorrenciaLavagemId)
+            if (lav) {
+              setOcorrenciaLavagemId(null)
+              handleWhatsApp(lav, 'ocorrencia')
+            }
+          }}
+        />
+      )}
+
+      {whatsappState && (
+        <WhatsAppModal
+          lavagem={whatsappState.lavagem}
+          tipo={whatsappState.tipo}
+          loja={loja}
+          onClose={() => setWhatsappState(null)}
         />
       )}
     </div>

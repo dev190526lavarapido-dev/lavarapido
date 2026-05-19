@@ -16,9 +16,10 @@ interface OcorrenciaModalProps {
   lavagemId: string | null
   descricaoAtual?: string
   onClose: () => void
+  onWhatsApp?: () => void
 }
 
-export function OcorrenciaModal({ lavagemId, descricaoAtual, onClose }: OcorrenciaModalProps) {
+export function OcorrenciaModal({ lavagemId, descricaoAtual, onClose, onWhatsApp }: OcorrenciaModalProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [desc, setDesc] = useState(descricaoAtual || '')
@@ -35,6 +36,7 @@ export function OcorrenciaModal({ lavagemId, descricaoAtual, onClose }: Ocorrenc
       }
       router.refresh()
       onClose()
+      onWhatsApp?.()
     })
   }
 
