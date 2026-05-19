@@ -23,7 +23,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <nav className="hidden border-r border-line bg-[var(--bg)] px-3.5 py-[18px] lg:flex lg:flex-col lg:gap-1">
+    <nav className="hidden border-r border-line bg-[var(--bg)] px-3.5 py-[18px] min-[900px]:flex min-[900px]:flex-col min-[900px]:gap-1">
       {/* Section label */}
       <div className="px-3 pb-1.5 pt-4 font-mono text-[11px] uppercase tracking-[0.08em] text-[var(--muted-color)]">
         Operação

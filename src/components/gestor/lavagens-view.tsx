@@ -1,7 +1,7 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback, useTransition } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect, useMemo, useCallback, useTransition, useRef } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Search, Plus } from 'lucide-react'
 import { STATUS_META, STATUS_TRANSITIONS } from '@/lib/constants'
 import type { LavagemStatus } from '@/lib/constants'
@@ -32,6 +32,7 @@ interface LavagensViewProps {
 
 export function LavagensView({ lavagens }: LavagensViewProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
 
   const [search, setSearch] = useState('')
@@ -53,6 +54,23 @@ export function LavagensView({ lavagens }: LavagensViewProps) {
         if (data) setLoja(data as ConfigLoja)
       })
   }, [])
+
+  // Open WhatsApp modal for latest wash when redirected from nova-lavagem
+  const whatsappParamHandled = useRef(false)
+  useEffect(() => {
+    if (whatsappParamHandled.current) return
+    if (searchParams.get('whatsapp') !== 'new' || lavagens.length === 0) return
+    whatsappParamHandled.current = true
+    const latest = lavagens
+      .filter((l) => l.status_atual === 'aguardando_lavagem')
+      .sort((a, b) => new Date(b.entrada_em).getTime() - new Date(a.entrada_em).getTime())[0]
+    queueMicrotask(() => {
+      if (latest) {
+        setWhatsappState({ lavagem: latest, tipo: 'entrada' })
+      }
+      router.replace('/gestor/lavagens', { scroll: false })
+    })
+  }, [searchParams, lavagens, router])
 
   /* ============ Client-side search filter ============ */
   const filtered = useMemo(() => {
@@ -213,7 +231,7 @@ export function LavagensView({ lavagens }: LavagensViewProps) {
         <div className="flex gap-2">
           <button
             className="inline-flex items-center gap-2 rounded-[var(--radius-btn)] bg-[var(--brand)] px-4 py-2.5 text-sm font-semibold text-[var(--brand-ink)] shadow-[var(--shadow-sm)] transition-all hover:brightness-95 active:translate-y-px"
-            onClick={() => console.log('Nova lavagem')}
+            onClick={() => router.push('/gestor/nova-lavagem')}
           >
             <Plus size={16} />
             Nova lavagem

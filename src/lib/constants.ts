@@ -61,7 +61,7 @@ export const STATUS_META: Record<LavagemStatus, StatusMeta> = {
 export const STATUS_TRANSITIONS: Record<LavagemStatus, LavagemStatus[]> = {
   aguardando_lavagem: ["lavando", "ocorrencia"],
   lavando: ["lavagem_concluida", "ocorrencia", "aguardando_lavagem"],
-  lavagem_concluida: ["retirado", "ocorrencia"],
+  lavagem_concluida: ["retirado", "ocorrencia", "lavando"],
   ocorrencia: ["aguardando_lavagem", "lavando", "lavagem_concluida"],
   retirado: [],
 };

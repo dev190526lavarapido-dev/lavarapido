@@ -209,7 +209,7 @@ export function NovaLavagemWizard({
         setFormError(result.error);
         return;
       }
-      router.push("/gestor/lavagens");
+      router.push("/gestor/lavagens?whatsapp=new");
     });
   }
 
