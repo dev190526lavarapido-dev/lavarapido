@@ -1,10 +1,12 @@
-export default function NovaLavagemPage() {
-  return (
-    <div>
-      <h1 className="font-heading text-[30px] font-bold leading-tight tracking-tight">
-        Nova Lavagem
-      </h1>
-      <p className="mt-1 text-sm text-[var(--muted-color)]">Em breve</p>
-    </div>
-  );
+import { getClientes } from "@/server/queries/clientes";
+import { getServicosAtivos } from "@/server/queries/servicos";
+import { NovaLavagemWizard } from "@/components/gestor/nova-lavagem-wizard";
+
+export default async function NovaLavagemPage() {
+  const [clientes, servicos] = await Promise.all([
+    getClientes(),
+    getServicosAtivos(),
+  ]);
+
+  return <NovaLavagemWizard clientes={clientes} servicos={servicos} />;
 }
