@@ -20,6 +20,8 @@ function WhatsAppIcon({ className }: { className?: string }) {
 interface LavagemCardProps {
   lavagem: LavagemComDetalhes
   onStatusChange: (lavagemId: string, novoStatus: LavagemStatus) => void
+  onOpen?: (lavagem: LavagemComDetalhes) => void
+  onOcorrencia?: (lavagemId: string) => void
   isDragging?: boolean
   onDragStart?: () => void
   onDragEnd?: () => void
@@ -59,6 +61,8 @@ function formatHM(dateStr: string): string {
 export function LavagemCard({
   lavagem,
   onStatusChange,
+  onOpen,
+  onOcorrencia,
   isDragging,
   onDragStart,
   onDragEnd,
@@ -86,7 +90,7 @@ export function LavagemCard({
         onDragStart?.()
       }}
       onDragEnd={() => onDragEnd?.()}
-      onClick={() => console.log('Abrir detalhe lavagem:', lavagem.id)}
+      onClick={() => onOpen?.(lavagem)}
     >
       {/* Placa + valor */}
       <div className="flex items-center justify-between gap-2">
@@ -140,7 +144,7 @@ export function LavagemCard({
               title="Marcar ocorrência"
               onClick={(e) => {
                 e.stopPropagation()
-                console.log('Abrir modal ocorrência:', lavagem.id)
+                onOcorrencia?.(lavagem.id)
               }}
             >
               <AlertTriangle size={14} />

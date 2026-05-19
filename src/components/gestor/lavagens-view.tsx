@@ -8,6 +8,8 @@ import type { LavagemStatus } from '@/lib/constants'
 import type { LavagemComDetalhes } from '@/lib/types'
 import { mudarStatus } from '@/server/actions/lavagens'
 import { LavagemCard } from './lavagem-card'
+import { LavagemDetalheModal } from '@/components/modals/lavagem-detalhe'
+import { OcorrenciaModal } from '@/components/modals/ocorrencia-modal'
 import { cn } from '@/lib/utils'
 
 /* ============ Column config ============ */
@@ -33,6 +35,8 @@ export function LavagensView({ lavagens }: LavagensViewProps) {
   const [filter, setFilter] = useState<FilterKey>('todos')
   const [dragId, setDragId] = useState<string | null>(null)
   const [hoverCol, setHoverCol] = useState<LavagemStatus | null>(null)
+  const [selectedLavagem, setSelectedLavagem] = useState<LavagemComDetalhes | null>(null)
+  const [ocorrenciaLavagemId, setOcorrenciaLavagemId] = useState<string | null>(null)
 
   /* ============ Client-side search filter ============ */
   const filtered = useMemo(() => {
@@ -92,7 +96,7 @@ export function LavagensView({ lavagens }: LavagensViewProps) {
       if (!transitions.includes(colKey)) return
 
       if (colKey === 'ocorrencia') {
-        console.log('Abrir modal ocorrência (drag):', lavagemId)
+        setOcorrenciaLavagemId(lavagemId)
         return
       }
 
@@ -149,6 +153,8 @@ export function LavagensView({ lavagens }: LavagensViewProps) {
             key={l.id}
             lavagem={l}
             onStatusChange={handleStatusChange}
+            onOpen={(lav) => setSelectedLavagem(lav)}
+            onOcorrencia={(id) => setOcorrenciaLavagemId(id)}
             isDragging={dragId === l.id}
             onDragStart={() => setDragId(l.id)}
             onDragEnd={() => setDragId(null)}
@@ -270,6 +276,26 @@ export function LavagensView({ lavagens }: LavagensViewProps) {
             )
           })}
         </div>
+      )}
+
+      {/* Modals */}
+      {selectedLavagem && (
+        <LavagemDetalheModal
+          lavagem={selectedLavagem}
+          onClose={() => setSelectedLavagem(null)}
+          onOcorrencia={(id) => {
+            setSelectedLavagem(null)
+            setOcorrenciaLavagemId(id)
+          }}
+        />
+      )}
+
+      {ocorrenciaLavagemId && (
+        <OcorrenciaModal
+          lavagemId={ocorrenciaLavagemId}
+          descricaoAtual={lavagens.find((l) => l.id === ocorrenciaLavagemId)?.ocorrencia_descricao || undefined}
+          onClose={() => setOcorrenciaLavagemId(null)}
+        />
       )}
     </div>
   )
