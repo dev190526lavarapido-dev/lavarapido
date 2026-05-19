@@ -16,7 +16,7 @@ export function BottomBar() {
   const pathname = usePathname();
 
   return (
-    <nav className="sticky bottom-0 z-30 flex items-center justify-around border-t border-line bg-surface px-2 pb-[calc(8px+env(safe-area-inset-bottom))] pt-2 lg:hidden">
+    <nav className="sticky bottom-0 z-30 flex items-center justify-around border-t border-line bg-surface px-2 pb-[calc(8px+env(safe-area-inset-bottom))] pt-2 min-[900px]:hidden">
       {TABS.map((tab) => {
         const Icon = tab.icon;
         const isActive = pathname === tab.href || pathname.startsWith(tab.href + "/");

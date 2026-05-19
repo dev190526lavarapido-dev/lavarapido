@@ -147,6 +147,14 @@ export function ConfiguracoesView({ config }: Props) {
   useEffect(() => {
     document.documentElement.style.setProperty('--brand', corPrimaria)
     document.documentElement.style.setProperty('--primary', corPrimaria)
+    const h = corPrimaria.replace('#', '')
+    if (h.length === 6) {
+      const [r, g, b] = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255)
+      const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b
+      const brandInk = lum > 0.6 ? '#1A1413' : '#FFFFFF'
+      document.documentElement.style.setProperty('--brand-ink', brandInk)
+      document.documentElement.style.setProperty('--primary-foreground', brandInk)
+    }
   }, [corPrimaria])
 
   // Salva aparencia no server ao mudar

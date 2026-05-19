@@ -24,11 +24,11 @@ import { Label } from '@/components/ui/label'
 
 /* ============ Avatar colors ============ */
 const AVATAR_COLORS = [
-  'bg-blue-500',
-  'bg-emerald-500',
-  'bg-amber-500',
-  'bg-purple-500',
-  'bg-rose-500',
+  'bg-[color-mix(in_oklab,var(--yellow)_35%,var(--bg))]',
+  'bg-[color-mix(in_oklab,var(--brand)_30%,var(--bg))]',
+  'bg-[color-mix(in_oklab,var(--mint)_30%,var(--bg))]',
+  'bg-[color-mix(in_oklab,var(--sky)_30%,var(--bg))]',
+  'bg-[color-mix(in_oklab,var(--rose)_28%,var(--bg))]',
 ]
 
 function initials(nome: string): string {
@@ -128,7 +128,7 @@ export function ClientesView({ clientes, totalVeiculos }: ClientesViewProps) {
           >
             {/* Avatar */}
             <div
-              className={`flex h-10 w-10 flex-none items-center justify-center rounded-full text-sm font-bold text-white ${AVATAR_COLORS[i % 5]}`}
+              className={`flex h-10 w-10 flex-none items-center justify-center rounded-xl text-sm font-bold text-[var(--ink)] ${AVATAR_COLORS[i % 5]}`}
             >
               {initials(c.nome)}
             </div>
@@ -309,7 +309,10 @@ function ClienteDetalheModal({ clienteId, onClose }: ClienteDetalheModalProps) {
                     key={l.id}
                     type="button"
                     className="flex w-full items-center justify-between rounded-xl border border-[var(--line)] px-3 py-2.5 text-left transition-colors hover:bg-[var(--surface-2)]"
-                    onClick={() => console.log('Ver lavagem', l.id)}
+                    onClick={() => {
+                      onClose()
+                      window.location.href = '/gestor/lavagens'
+                    }}
                   >
                     <div>
                       <div className="text-[13px] font-semibold">

@@ -1,18 +1,32 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Store, Settings, LogOut } from "lucide-react";
 import { logout } from "@/server/actions/auth";
+import { createClient } from "@/lib/supabase/client";
 
 export function Topbar() {
+  const [nomeLoja, setNomeLoja] = useState("Lava Rápido");
+
+  useEffect(() => {
+    createClient()
+      .from("configuracoes_loja")
+      .select("nome_loja")
+      .single()
+      .then(({ data }) => {
+        if (data?.nome_loja) setNomeLoja(data.nome_loja);
+      });
+  }, []);
+
   return (
-    <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-line bg-[var(--bg)] px-4 py-3.5 lg:col-span-2 lg:px-6">
+    <header className="sticky top-0 z-30 flex items-center gap-3 border-b border-line bg-[var(--bg)] px-4 py-3.5 min-[900px]:col-span-2 min-[900px]:px-6">
       {/* Brand */}
       <div className="flex items-center gap-2.5 font-heading text-[17px] font-bold tracking-tight">
         <span className="grid h-8 w-8 place-items-center rounded-[10px] bg-brand font-heading text-[17px] font-extrabold text-brand-ink shadow-sm">
           LR
         </span>
-        <span className="hidden md:inline-flex">Lava Rápido</span>
+        <span className="hidden md:inline-flex">{nomeLoja}</span>
       </div>
 
       {/* Spacer */}
