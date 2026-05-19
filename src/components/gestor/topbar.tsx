@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Store, Settings, LogOut } from "lucide-react";
+import { logout } from "@/server/actions/auth";
 
 export function Topbar() {
   return (
@@ -34,14 +35,16 @@ export function Topbar() {
         >
           <Settings size={16} />
         </Link>
-        <Link
-          href="/login"
-          className="inline-flex h-[34px] w-[34px] items-center justify-center rounded-[10px] text-ink-2 transition-colors hover:bg-[var(--bg-2)] hover:text-ink"
-          title="Sair"
-          aria-label="Sair"
-        >
-          <LogOut size={16} />
-        </Link>
+        <form action={logout}>
+          <button
+            type="submit"
+            className="inline-flex h-[34px] w-[34px] items-center justify-center rounded-[10px] text-ink-2 transition-colors hover:bg-[var(--bg-2)] hover:text-ink"
+            title="Sair"
+            aria-label="Sair"
+          >
+            <LogOut size={16} />
+          </button>
+        </form>
       </div>
     </header>
   );
