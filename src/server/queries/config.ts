@@ -16,8 +16,7 @@ export async function getConfigLoja(): Promise<ConfigLoja | null> {
 }
 
 export async function getConfigLojaPublica(): Promise<ConfigLoja | null> {
-  const { createClient: createBrowserClient } = await import('@/lib/supabase/client')
-  const supabase = createBrowserClient()
+  const supabase = await createClient()
 
   const { data, error } = await supabase
     .from('configuracoes_loja')
