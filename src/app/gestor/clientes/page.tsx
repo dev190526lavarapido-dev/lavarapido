@@ -1,10 +1,10 @@
-export default function ClientesPage() {
-  return (
-    <div>
-      <h1 className="font-heading text-[30px] font-bold leading-tight tracking-tight">
-        Clientes
-      </h1>
-      <p className="mt-1 text-sm text-[var(--muted-color)]">Em breve</p>
-    </div>
-  );
+import { getClientes } from '@/server/queries/clientes'
+import { ClientesView } from '@/components/gestor/clientes-view'
+
+export default async function ClientesPage() {
+  const clientes = await getClientes()
+
+  const totalVeiculos = clientes.reduce((acc, c) => acc + c.veiculos.length, 0)
+
+  return <ClientesView clientes={clientes} totalVeiculos={totalVeiculos} />
 }
