@@ -1,6 +1,4 @@
-# {{PROJECT_NAME}} — Regras do Projeto
-
-<!-- SETUP: preencha todos os {{PLACEHOLDERS}} ao iniciar um novo projeto -->
+# lavarapido — Regras do Projeto
 
 > Você é uma IA entrando neste projeto. **Leia este arquivo primeiro**.
 > Depois leia `docs/projeto/README.md` pra ter o estado atual completo.
@@ -21,14 +19,11 @@
 
 ## 2. O que é
 
-<!-- SETUP: descreva o projeto em 2-3 frases -->
-{{PROJECT_DESCRIPTION}}
+App de gestão de lava-rápido com painel do gestor, página pública, acompanhamento por token e WhatsApp via wa.me.
 
-**Stack:** {{STACK_DESCRIPTION}}
-<!-- Exemplo: Vite + React + TypeScript, Supabase (auth + db + storage), Tailwind, Vercel -->
+**Stack:** Next.js 16, TypeScript, TailwindCSS v4, shadcn/ui, Supabase (Auth + Storage + Postgres + RLS), Zod, React Hook Form
 
-**Ambiente de produção:** {{PROD_URL}}
-<!-- Exemplo: https://meuapp.vercel.app -->
+**Ambiente de produção:** (pendente deploy)
 
 ---
 
@@ -38,10 +33,8 @@
 
 | Ambiente | Supabase Ref | Branch Git | Uso |
 |----------|-------------|------------|-----|
-| **DEV** | `{{SUPABASE_DEV_REF}}` | `dev` | Todo trabalho de desenvolvimento, testes, migrations |
-| **PROD** | `{{SUPABASE_PROD_REF}}` | `main` | Produção — só recebe promoção autorizada |
-
-<!-- SETUP: preencha os refs do Supabase de cada ambiente -->
+| **DEV** | `xvwfnldvbxequhabunqi` | `dev` | Todo trabalho de desenvolvimento, testes, migrations |
+| **PROD** | `(pendente)` | `main` | Produção — só recebe promoção autorizada |
 
 - **NUNCA** rodar migrations, seeds ou queries com escrita direto no banco PROD.
 - Variáveis de ambiente DEV e PROD são separadas; conferir `.env` / `.env.local` antes de rodar qualquer comando.
@@ -72,26 +65,18 @@
 
 ### 3.6 Migrations
 
-<!-- SETUP: descreva a convenção de migrations do projeto -->
-- Migrations SQL ficam em `{{MIGRATIONS_PATH}}`.
-<!-- Exemplo: supabase/migrations/ -->
+- Migrations SQL ficam em `supabase/migrations/`.
 - Sempre criar via CLI (`supabase migration new nome_descritivo`).
 - Testar em DEV antes de promover.
 - Nunca editar migration já aplicada; criar nova pra corrigir.
 
 ### 3.7 Restrições do produto
 
-<!-- SETUP: liste aqui regras de negócio invioláveis do seu projeto -->
-<!-- Exemplo:
-- Pedido só pode ser editado enquanto status = "pendente"
-- Usuário sem role "admin" não acessa painel de gestão
--->
-{{PRODUCT_CONSTRAINTS}}
+MVP single-tenant (1 loja). WhatsApp via wa.me (não Cloud API). Sem multi-loja no MVP.
 
 ### 3.8 Testes E2E
 
-- Specs Playwright ficam em `{{E2E_PATH}}`.
-<!-- Exemplo: tests/e2e/ -->
+- Specs Playwright ficam em `tests/e2e/`.
 - **Antes de criar/modificar qualquer spec**, ler a skill `e2e-performance`.
 - **Banido:** `waitForTimeout`, `page.pause`, login via UI repetido (usar `storageState`).
 - Entre passos de uma iteração, rodar só a spec do passo atual.
@@ -102,31 +87,18 @@
 
 ## 4. Comandos principais
 
-<!-- SETUP: preencha com os comandos do seu projeto -->
-
 | Comando | O que faz |
 |---------|-----------|
-| `{{CMD_DEV}}` | Inicia servidor de desenvolvimento |
-| `{{CMD_BUILD}}` | Build de produção |
-| `{{CMD_TEST}}` | Roda testes unitários |
-| `{{CMD_E2E}}` | Roda testes E2E |
-| `{{CMD_LINT}}` | Lint + format |
-| `{{CMD_MIGRATION}}` | Cria nova migration |
-
-<!-- Exemplo:
 | `npm run dev` | Inicia servidor de desenvolvimento |
 | `npm run build` | Build de produção |
-| `npx vitest` | Roda testes unitários |
-| `npx playwright test` | Roda testes E2E |
+| `npx tsc --noEmit` | Roda testes unitários |
+| `npm run test:e2e` | Roda testes E2E |
 | `npm run lint` | Lint + format |
-| `supabase migration new nome` | Cria nova migration |
--->
+| `supabase migration new <nome>` | Cria nova migration |
 
 ---
 
 ## 5. Skills disponíveis
-
-<!-- SETUP: remova skills que não se aplicam ao projeto; adicione novas conforme necessário -->
 
 | Skill | Quando usar |
 |-------|-------------|
@@ -141,11 +113,13 @@
 
 ## 6. Estrutura do projeto
 
-<!-- SETUP: adapte a árvore abaixo à estrutura real do seu projeto -->
-
 ```
-{{PROJECT_NAME}}/
+lavarapido/
 ├── src/                    # Código fonte
+│   └── app/
+│       ├── (public)/a/[token]/  # Acompanhamento público por token
+│       ├── gestor/              # Painel do gestor (dashboard, lavagens, clientes, catálogo, config, nova-lavagem)
+│       └── login/               # Autenticação
 ├── public/                 # Assets estáticos
 ├── docs/
 │   ├── projeto/            # Estado atual do projeto (README.md, arquitetura, decisões)
@@ -177,13 +151,11 @@
 
 ## 8. Checklist de setup inicial
 
-<!-- SETUP: use esta checklist ao configurar o projeto pela primeira vez -->
-
-- [ ] Substituir todos os `{{PLACEHOLDERS}}` neste arquivo
-- [ ] Criar `docs/projeto/README.md` com descrição do estado atual
-- [ ] Configurar `.env.local` com variáveis de DEV
-- [ ] Verificar que `supabase/config.toml` aponta pra DEV
-- [ ] Copiar skills necessárias para `.claude/skills/`
-- [ ] Rodar `npm install` (ou equivalente)
-- [ ] Rodar build + testes pra confirmar que tudo funciona
-- [ ] Commitar este CLAUDE.md configurado
+- [x] Substituir todos os `{{PLACEHOLDERS}}` neste arquivo
+- [x] Criar `docs/projeto/README.md` com descrição do estado atual
+- [x] Configurar `.env.local` com variáveis de DEV
+- [x] Verificar que `supabase/config.toml` aponta pra DEV
+- [x] Copiar skills necessárias para `.claude/skills/`
+- [x] Rodar `npm install` (ou equivalente)
+- [x] Rodar build + testes pra confirmar que tudo funciona
+- [x] Commitar este CLAUDE.md configurado

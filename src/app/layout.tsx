@@ -19,8 +19,18 @@ const bricolage = Bricolage_Grotesque({
 });
 
 export const metadata: Metadata = {
-  title: "Lava Rápido",
-  description: "Sistema de gestão para lava rápido — controle de lavagens, clientes e faturamento.",
+  title: "Lava Rápido Marquinhos",
+  description:
+    "Gestão de lava-rápido com acompanhamento em tempo real",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Lava Rápido",
+  },
+  icons: [
+    { url: "/icon.svg", type: "image/svg+xml" },
+  ],
 };
 
 export default function RootLayout({
@@ -33,6 +43,10 @@ export default function RootLayout({
       lang="pt-BR"
       className={`${geistSans.variable} ${geistMono.variable} ${bricolage.variable} h-full antialiased`}
     >
+      <head>
+        <meta name="theme-color" content="#FF6B47" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );
