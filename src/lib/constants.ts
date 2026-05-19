@@ -1,0 +1,84 @@
+import {
+  Clock,
+  Droplet,
+  Check,
+  AlertTriangle,
+  Car,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+
+/* =================== STATUS ===================== */
+
+export type LavagemStatus =
+  | "aguardando_lavagem"
+  | "lavando"
+  | "lavagem_concluida"
+  | "ocorrencia"
+  | "retirado";
+
+export interface StatusMeta {
+  label: string;
+  icon: LucideIcon;
+  color: string;
+  className: string;
+}
+
+export const STATUS_META: Record<LavagemStatus, StatusMeta> = {
+  aguardando_lavagem: {
+    label: "Aguardando",
+    icon: Clock,
+    color: "var(--st-aguardando)",
+    className: "aguardando",
+  },
+  lavando: {
+    label: "Lavando",
+    icon: Droplet,
+    color: "var(--st-lavando)",
+    className: "lavando",
+  },
+  lavagem_concluida: {
+    label: "Concluida",
+    icon: Check,
+    color: "var(--st-concluida)",
+    className: "concluida",
+  },
+  ocorrencia: {
+    label: "Ocorrencia",
+    icon: AlertTriangle,
+    color: "var(--st-ocorrencia)",
+    className: "ocorrencia",
+  },
+  retirado: {
+    label: "Retirado",
+    icon: Car,
+    color: "var(--st-retirado)",
+    className: "retirado",
+  },
+};
+
+/* =================== STATUS TRANSITIONS ===================== */
+
+export const STATUS_TRANSITIONS: Record<LavagemStatus, LavagemStatus[]> = {
+  aguardando_lavagem: ["lavando", "ocorrencia"],
+  lavando: ["lavagem_concluida", "ocorrencia", "aguardando_lavagem"],
+  lavagem_concluida: ["retirado", "ocorrencia"],
+  ocorrencia: ["aguardando_lavagem", "lavando", "lavagem_concluida"],
+  retirado: [],
+};
+
+/* =================== DEFAULT WHATSAPP TEMPLATES ===================== */
+
+export const DEFAULT_TEMPLATES: Record<string, string> = {
+  entrada:
+    "Seu carro ({{placa}}) deu entrada aqui no lava rapido. Ja vou cuidar do {{servico}} pra voce!",
+  lavando:
+    "A lavagem do seu {{placa}} comecou agora! Servico: {{servico}}.",
+  concluida:
+    "O {{placa}} ja ta limpinho e te esperando aqui no lava! Vem buscar quando puder!",
+  retirado:
+    "Valeu por confiar na gente! Volta sempre — a gente fica feliz em ver voce de novo.",
+  ocorrencia:
+    "Temos um aviso sobre o seu {{placa}}:\n{{descricao}}",
+  aguardando:
+    "Voltamos o seu {{placa}} pra fila por um instante — ja ja a gente retoma a lavagem.",
+};
