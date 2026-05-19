@@ -243,3 +243,159 @@
 :root[data-theme="dark"] .wa-chat {
   background: #0c1418;
 }
+
+/* ===================== Vitrine pública ===================== */
+.pub-shell {
+  min-height: 100dvh;
+  background: linear-gradient(180deg, var(--bg-2) 0%, var(--bg) 30%);
+  display: flex;
+  flex-direction: column;
+}
+.pub-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 18px 8px;
+  gap: 10px;
+}
+.pub-hero {
+  padding: 12px 18px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.pub-hero .nome-loja {
+  font-family: var(--font-display);
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.0;
+  color: var(--ink);
+}
+.pub-hero .desc {
+  color: var(--ink-2);
+  font-size: 15px;
+  max-width: 52ch;
+}
+.pub-section {
+  padding: 14px 18px 22px;
+}
+.pub-section h2 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 10px;
+  color: var(--ink);
+}
+.pub-svc-grid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 700px) {
+  .pub-svc-grid { grid-template-columns: 1fr 1fr; }
+}
+.pub-svc {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.pub-svc .nome { font-weight: 600; font-size: 15px; }
+.pub-svc .desc { color: var(--muted-color); font-size: 13px; margin-top: 2px; }
+.pub-svc .preco {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+.pub-svc .meta { color: var(--muted-color); font-size: 12px; display: flex; align-items: center; gap: 4px; }
+
+.pub-info {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr;
+}
+@media (min-width: 700px) {
+  .pub-info { grid-template-columns: 1fr 1fr; }
+}
+.info-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 14px;
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+.info-card .icon-wrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--bg-2);
+  color: var(--brand);
+  display: grid;
+  place-items: center;
+  flex: none;
+}
+.info-card .label { font-size: 12px; color: var(--muted-color); }
+.info-card .value { font-weight: 600; }
+
+.pub-cta-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+}
+.pub-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 14px 10px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--ink);
+  cursor: pointer;
+  text-decoration: none;
+}
+.pub-cta.whats {
+  background: #25D366;
+  color: white;
+  border-color: transparent;
+}
+
+.pub-foot {
+  text-align: center;
+  padding: 22px 16px 36px;
+  color: var(--muted-color);
+  font-size: 12px;
+  margin-top: auto;
+}
+
+.pub-banner-encerrada {
+  margin: 0 18px;
+  padding: 12px 14px;
+  background: color-mix(in oklab, var(--yellow) 25%, var(--surface));
+  border: 1px solid color-mix(in oklab, var(--yellow) 50%, var(--line));
+  border-radius: 12px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ink);
+}
+
+/* ===================== Pulse ring (acompanhamento público) ===================== */
+@keyframes pulse-ring {
+  0%   { transform: scale(.9); opacity: 1; }
+  100% { transform: scale(1.2); opacity: 0; }
+}
