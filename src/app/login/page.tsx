@@ -72,9 +72,10 @@ export default function LoginPage() {
           }}
         >
           <div className="flex flex-col gap-1.5">
-            <label className="text-[13px] font-semibold text-ink">Email</label>
+            <label htmlFor="email" className="text-[13px] font-semibold text-ink">Email</label>
             <input
               {...register('email')}
+              id="email"
               type="email"
               autoComplete="email"
               className="h-10 rounded-[var(--radius-btn)] border border-line bg-[var(--bg)] px-3 text-[14px] text-ink outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20"
@@ -86,9 +87,10 @@ export default function LoginPage() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="text-[13px] font-semibold text-ink">Senha</label>
+            <label htmlFor="password" className="text-[13px] font-semibold text-ink">Senha</label>
             <input
               {...register('password')}
+              id="password"
               type="password"
               autoComplete="current-password"
               className="h-10 rounded-[var(--radius-btn)] border border-line bg-[var(--bg)] px-3 text-[14px] text-ink outline-none transition-colors focus:border-brand focus:ring-2 focus:ring-brand/20"
