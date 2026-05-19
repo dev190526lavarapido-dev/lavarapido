@@ -49,3 +49,29 @@ export function buildWaMessage(tipo: string, ctx: {
   const includeLink = tipo !== 'retirado'
   return `${waHeader(nome)}\n\n${body}\n\n${waFooter(lojaNome, includeLink ? link : undefined)}`
 }
+
+export function tituloPorTipo(tipo: string): string {
+  return (
+    ({
+      entrada: 'Avisar entrada',
+      lavando: 'Avisar inicio da lavagem',
+      concluida: 'Avisar conclusao',
+      ocorrencia: 'Avisar ocorrencia',
+      retirado: 'Confirmar retirada',
+      aguardando: 'Avisar volta pra fila',
+      manual: 'Mandar mensagem pro cliente',
+    }) as Record<string, string>
+  )[tipo] || 'Mandar mensagem'
+}
+
+export function tipoMsgParaStatus(status: string): string {
+  return (
+    ({
+      aguardando_lavagem: 'aguardando',
+      lavando: 'lavando',
+      lavagem_concluida: 'concluida',
+      ocorrencia: 'ocorrencia',
+      retirado: 'retirado',
+    }) as Record<string, string>
+  )[status] || 'manual'
+}

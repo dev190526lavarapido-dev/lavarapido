@@ -6,6 +6,7 @@ import { moneyBR } from '@/components/money'
 import { STATUS_TRANSITIONS } from '@/lib/constants'
 import type { LavagemStatus } from '@/lib/constants'
 import type { LavagemComDetalhes } from '@/lib/types'
+import { tipoMsgParaStatus } from '@/lib/whatsapp'
 import { cn } from '@/lib/utils'
 
 /* WhatsApp icon inline */
@@ -22,6 +23,7 @@ interface LavagemCardProps {
   onStatusChange: (lavagemId: string, novoStatus: LavagemStatus) => void
   onOpen?: (lavagem: LavagemComDetalhes) => void
   onOcorrencia?: (lavagemId: string) => void
+  onWhatsApp?: (lavagem: LavagemComDetalhes, tipo: string) => void
   isDragging?: boolean
   onDragStart?: () => void
   onDragEnd?: () => void
@@ -63,6 +65,7 @@ export function LavagemCard({
   onStatusChange,
   onOpen,
   onOcorrencia,
+  onWhatsApp,
   isDragging,
   onDragStart,
   onDragEnd,
@@ -155,7 +158,7 @@ export function LavagemCard({
             title="WhatsApp"
             onClick={(e) => {
               e.stopPropagation()
-              console.log('Abrir WhatsApp:', lavagem.id)
+              onWhatsApp?.(lavagem, tipoMsgParaStatus(status))
             }}
           >
             <WhatsAppIcon />

@@ -196,3 +196,50 @@
     @apply font-sans;
   }
 }
+
+/* ===================== WhatsApp preview ===================== */
+.wa-chat {
+  background: #E5DDD5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath fill='%23000' fill-opacity='0.03' d='M20 0c11 0 20 9 20 20s-9 20-20 20S0 31 0 20 9 0 20 0z'/%3E%3C/svg%3E");
+  border-radius: 16px;
+  padding: 14px;
+  position: relative;
+}
+.wa-bubble {
+  background: #DCF8C6;
+  padding: 10px 12px 22px;
+  border-radius: 8px 0 8px 8px;
+  max-width: 92%;
+  margin-left: auto;
+  position: relative;
+  font-size: 14px;
+  white-space: pre-wrap;
+  line-height: 1.45;
+  color: #1F2937;
+  box-shadow: 0 1px 0.5px rgba(11,20,26,.13);
+}
+.wa-bubble::before {
+  content: '';
+  position: absolute;
+  right: -8px;
+  top: 0;
+  width: 0;
+  height: 0;
+  border-top: 8px solid #DCF8C6;
+  border-right: 8px solid transparent;
+}
+.wa-bubble .time {
+  position: absolute;
+  right: 10px;
+  bottom: 4px;
+  font-size: 11px;
+  color: #667781;
+}
+.wa-bubble .time::after {
+  content: ' \2713\2713';
+  color: #4FC3F7;
+}
+
+:root[data-theme="dark"] .wa-chat {
+  background: #0c1418;
+}
