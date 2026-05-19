@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Protótipo legado (não faz parte do app Next.js)
+    "prototipo/**",
   ]),
 ]);
 
