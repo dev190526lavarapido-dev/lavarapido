@@ -16,10 +16,12 @@ import {
   RotateCcw,
 } from 'lucide-react'
 import type { ConfigLoja } from '@/lib/types'
+import { PALETAS, type PaletaKey } from '@/lib/palettes'
 import { DEFAULT_TEMPLATES } from '@/lib/constants'
 import { fillTemplate, waHeader, waFooter } from '@/lib/whatsapp'
 import { atualizarConfigLoja, atualizarAparencia, uploadLogo } from '@/server/actions/config'
 import { PlacaTag } from '@/components/placa-tag'
+import { LogoCropModal } from '@/components/gestor/logo-crop-modal'
 import { cn } from '@/lib/utils'
 
 /* ============================================================
@@ -44,6 +46,8 @@ const ETAPAS = [
   { key: 'aguardando', label: 'Pra fila', icon: Clock, desc: 'Voltou pra aguardando', vars: ['placa'] },
 ] as const
 
+const PALETA_KEYS = Object.keys(PALETAS) as PaletaKey[]
+
 /* ============================================================
    ThemeOption
    ============================================================ */
@@ -51,12 +55,15 @@ function ThemeOption({
   active,
   onClick,
   variant,
+  paleta,
 }: {
   active: boolean
   onClick: () => void
   variant: 'claro' | 'escuro'
+  paleta: PaletaKey
 }) {
   const isDark = variant === 'escuro'
+  const p = PALETAS[paleta]
   return (
     <button
       type="button"
@@ -73,13 +80,13 @@ function ThemeOption({
         style={{
           width: 56,
           height: 40,
-          background: isDark ? '#1A1816' : '#FFF6E8',
-          borderColor: isDark ? '#2A2521' : '#EFE4D2',
+          background: isDark ? '#1A1816' : p.preview.bg,
+          borderColor: isDark ? '#2A2521' : p.preview.line,
         }}
       >
         <div
           className="absolute left-1.5 top-1.5 h-1 w-4 rounded-sm"
-          style={{ background: isDark ? '#FFF8EE' : '#1A1413' }}
+          style={{ background: isDark ? '#FFF8EE' : p.preview.ink }}
         />
         <div className="absolute left-1.5 top-3.5 h-[3px] w-7 rounded-sm bg-[#8A7D78]" />
         <div className="absolute bottom-1.5 right-1.5 h-2.5 w-2.5 rounded bg-[var(--brand)]" />
@@ -92,6 +99,60 @@ function ThemeOption({
         <div className="text-xs text-[var(--muted-foreground)]">
           {isDark ? 'Pra trabalhar a noite' : 'Padrao de dia'}
         </div>
+      </div>
+    </button>
+  )
+}
+
+/* ============================================================
+   PaletaOption
+   ============================================================ */
+function PaletaOption({
+  paletaKey,
+  active,
+  onClick,
+}: {
+  paletaKey: PaletaKey
+  active: boolean
+  onClick: () => void
+}) {
+  const p = PALETAS[paletaKey]
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        'flex items-center gap-3 rounded-[14px] border px-3.5 py-3 transition-all',
+        active
+          ? 'border-2 border-[var(--brand)] bg-[color-mix(in_oklab,var(--brand)_8%,var(--surface))]'
+          : 'border-[var(--line)] bg-[var(--surface)] hover:bg-[var(--bg-2)]',
+      )}
+    >
+      <div
+        className="relative flex-none overflow-hidden rounded-[10px] border"
+        style={{
+          width: 48,
+          height: 36,
+          background: p.preview.bg,
+          borderColor: p.preview.line,
+        }}
+      >
+        <div
+          className="absolute left-1.5 top-1.5 h-1 w-3.5 rounded-sm"
+          style={{ background: p.preview.ink }}
+        />
+        <div
+          className="absolute left-1.5 top-3.5 h-[3px] w-6 rounded-sm"
+          style={{ background: p.preview.line }}
+        />
+        <div
+          className="absolute bottom-1 right-1 h-2.5 w-2.5 rounded"
+          style={{ background: p.brand }}
+        />
+      </div>
+      <div className="text-left">
+        <div className="text-sm font-semibold">{p.label}</div>
+        <div className="text-xs text-[var(--muted-foreground)]">{p.desc}</div>
       </div>
     </button>
   )
@@ -122,10 +183,14 @@ export function ConfiguracoesView({ config }: Props) {
   const [mensagemWhatsappPadrao, setMensagemWhatsappPadrao] = useState(config?.mensagem_whatsapp_padrao ?? '')
   const [mensagensEtapas, setMensagensEtapas] = useState<Record<string, string>>(config?.mensagens_etapas ?? {})
   const [logoUrl, setLogoUrl] = useState(config?.logo_url ?? '')
+  const [cropImage, setCropImage] = useState<string | null>(null)
+  const [logoSaved, setLogoSaved] = useState(false)
+  const [logoError, setLogoError] = useState('')
 
   // --- aparencia state ---
   const [tema, setTema] = useState<'claro' | 'escuro'>(config?.tema ?? 'claro')
-  const [corPrimaria, setCorPrimaria] = useState(config?.cor_primaria ?? '#FF6B47')
+  const [paleta, setPaleta] = useState<PaletaKey>((config?.paleta as PaletaKey) ?? 'esmeralda')
+  const [corPrimaria, setCorPrimaria] = useState(config?.cor_primaria ?? '#11A37F')
   const [hexInput, setHexInput] = useState(corPrimaria)
   const [hexFocused, setHexFocused] = useState(false)
 
@@ -143,57 +208,79 @@ export function ConfiguracoesView({ config }: Props) {
     }
   }, [tema])
 
+  // Aplica paleta em tempo real
+  useEffect(() => {
+    const html = document.documentElement
+    PALETA_KEYS.forEach(k => html.classList.remove(`palette-${k}`))
+    if (paleta !== 'esmeralda') {
+      html.classList.add(`palette-${paleta}`)
+    }
+  }, [paleta])
+
   // Aplica cor em tempo real
   useEffect(() => {
     document.documentElement.style.setProperty('--brand', corPrimaria)
-    document.documentElement.style.setProperty('--primary', corPrimaria)
-    const h = corPrimaria.replace('#', '')
-    if (h.length === 6) {
-      const [r, g, b] = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255)
-      const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b
-      const brandInk = lum > 0.6 ? '#1A1413' : '#FFFFFF'
-      document.documentElement.style.setProperty('--brand-ink', brandInk)
-      document.documentElement.style.setProperty('--primary-foreground', brandInk)
-    }
+    document.documentElement.style.setProperty('--brand-ink', brandInkFor(corPrimaria))
   }, [corPrimaria])
 
   // Salva aparencia no server ao mudar
-  const salvarAparencia = (t: 'claro' | 'escuro', c: string) => {
+  const salvarAparencia = (t: 'claro' | 'escuro', p: PaletaKey, c: string) => {
     startTransition(async () => {
-      await atualizarAparencia({ tema: t, cor_primaria: c })
+      await atualizarAparencia({ tema: t, paleta: p, cor_primaria: c })
     })
   }
 
   const handleTema = (t: 'claro' | 'escuro') => {
     setTema(t)
-    salvarAparencia(t, corPrimaria)
+    salvarAparencia(t, paleta, corPrimaria)
+  }
+
+  const handlePaleta = (p: PaletaKey) => {
+    setPaleta(p)
+    const novaCor = PALETAS[p].brand
+    setCorPrimaria(novaCor)
+    setHexInput(novaCor)
+    salvarAparencia(tema, p, novaCor)
   }
 
   const handleCor = (c: string) => {
     setCorPrimaria(c)
-    salvarAparencia(tema, c)
+    setHexInput(c)
+    salvarAparencia(tema, paleta, c)
   }
 
   const aplicaHex = (val: string) => {
     const v2 = val.startsWith('#') ? val : '#' + val
     if (/^#[0-9A-Fa-f]{6}$/.test(v2)) {
       handleCor(v2)
-      setHexInput(v2)
     }
   }
 
   // Hex display: show input value when focused, otherwise corPrimaria
   const hexDisplay = hexFocused ? hexInput : corPrimaria
 
-  // Upload logo
-  const handleUploadLogo = async (file: File) => {
+  // Upload logo (receives cropped+compressed blob)
+  const handleUploadLogo = async (blob: Blob) => {
+    setLogoError('')
+    const file = new File([blob], `logo_${Date.now()}.webp`, { type: 'image/webp' })
     const fd = new FormData()
     fd.append('logo', file)
     const result = await uploadLogo(fd)
+    if (result.error) {
+      setLogoError(result.error)
+      return
+    }
     if (result.data) {
       setLogoUrl(result.data)
+      setLogoSaved(true)
+      setTimeout(() => setLogoSaved(false), 2500)
       router.refresh()
     }
+  }
+
+  const handleFileSelect = (file: File) => {
+    const url = URL.createObjectURL(file)
+    setCropImage(url)
   }
 
   // Salvar config geral
@@ -299,8 +386,23 @@ export function ConfiguracoesView({ config }: Props) {
           <div className="flex flex-col gap-2">
             <span className={sectionLabelCls}>Tema</span>
             <div className="flex flex-wrap gap-2.5">
-              <ThemeOption active={tema === 'claro'} onClick={() => handleTema('claro')} variant="claro" />
-              <ThemeOption active={tema === 'escuro'} onClick={() => handleTema('escuro')} variant="escuro" />
+              <ThemeOption active={tema === 'claro'} onClick={() => handleTema('claro')} variant="claro" paleta={paleta} />
+              <ThemeOption active={tema === 'escuro'} onClick={() => handleTema('escuro')} variant="escuro" paleta={paleta} />
+            </div>
+          </div>
+
+          {/* Paleta */}
+          <div className="flex flex-col gap-2">
+            <span className={sectionLabelCls}>Paleta de cores</span>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {PALETA_KEYS.map((k) => (
+                <PaletaOption
+                  key={k}
+                  paletaKey={k}
+                  active={paleta === k}
+                  onClick={() => handlePaleta(k)}
+                />
+              ))}
             </div>
           </div>
 
@@ -363,7 +465,7 @@ export function ConfiguracoesView({ config }: Props) {
                     ;(e.target as HTMLInputElement).blur()
                   }
                 }}
-                placeholder="#FF6B47"
+                placeholder="#11A37F"
               />
               <span className="text-xs text-[var(--muted-foreground)]">Cole o hex da sua marca aqui</span>
             </div>
@@ -422,11 +524,16 @@ export function ConfiguracoesView({ config }: Props) {
               <button
                 type="button"
                 onClick={() => fileRef.current?.click()}
-                className="relative flex h-[132px] w-[132px] items-center justify-center overflow-hidden rounded-[20px] border-2 border-dashed border-[var(--line)] bg-[var(--bg-2)] text-[var(--muted-foreground)] transition-colors hover:border-[var(--brand)]"
+                className="group relative flex h-[132px] w-[132px] items-center justify-center overflow-hidden rounded-[20px] border-2 border-dashed border-[var(--line)] bg-[var(--bg-2)] text-[var(--muted-foreground)] transition-colors hover:border-[var(--brand)]"
               >
                 {logoUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={logoUrl} alt="Logo" className="h-full w-full object-cover" />
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={logoUrl} alt="Logo" className="h-full w-full object-cover" />
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+                      <span className="text-xs font-semibold text-white">Trocar</span>
+                    </div>
+                  </>
                 ) : (
                   <div className="flex flex-col items-center gap-1">
                     <Upload size={24} />
@@ -441,14 +548,28 @@ export function ConfiguracoesView({ config }: Props) {
                 className="hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0]
-                  if (file && file.size <= 2 * 1024 * 1024) {
-                    handleUploadLogo(file)
+                  if (file && file.size <= 10 * 1024 * 1024) {
+                    handleFileSelect(file)
                   }
+                  if (fileRef.current) fileRef.current.value = ''
                 }}
               />
-              <p className="mt-2 max-w-[132px] text-xs text-[var(--muted-foreground)]">
-                PNG, JPG ou WEBP ate 2MB
-              </p>
+              {logoSaved && (
+                <p className="mt-2 max-w-[132px] text-xs font-semibold text-[var(--mint)]">
+                  <Check size={12} className="mr-1 inline" />
+                  Logo salvo!
+                </p>
+              )}
+              {logoError && (
+                <p className="mt-2 max-w-[132px] text-xs font-semibold text-[var(--rose)]">
+                  {logoError}
+                </p>
+              )}
+              {!logoSaved && !logoError && (
+                <p className="mt-2 max-w-[132px] text-xs text-[var(--muted-foreground)]">
+                  PNG, JPG ou WEBP ate 10MB
+                </p>
+              )}
             </div>
             {/* Nome + Descricao */}
             <div className="flex min-w-[220px] flex-1 flex-col gap-3">
@@ -663,6 +784,26 @@ export function ConfiguracoesView({ config }: Props) {
           </a>
         </div>
       </div>
+
+      {/* Crop modal */}
+      {cropImage && (
+        <LogoCropModal
+          imageUrl={cropImage}
+          onConfirm={(blob) => {
+            setCropImage(null)
+            handleUploadLogo(blob)
+          }}
+          onClose={() => setCropImage(null)}
+        />
+      )}
     </div>
   )
+}
+
+function brandInkFor(hex: string): string {
+  const h = hex.replace('#', '')
+  if (h.length !== 6) return '#FFFFFF'
+  const [r, g, b] = [0, 2, 4].map(i => parseInt(h.slice(i, i + 2), 16) / 255)
+  const lum = 0.2126 * r + 0.7152 * g + 0.0722 * b
+  return lum > 0.6 ? '#1A1413' : '#FFFFFF'
 }

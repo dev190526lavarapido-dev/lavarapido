@@ -12,6 +12,7 @@ export interface ConfigLoja {
   mensagem_whatsapp_padrao: string
   logo_url: string | null
   tema: 'claro' | 'escuro'
+  paleta: 'esmeralda' | 'oceano' | 'sol-coral' | 'lavanda' | 'asfalto'
   cor_primaria: string
   mensagens_etapas: Record<string, string>
   created_at: string

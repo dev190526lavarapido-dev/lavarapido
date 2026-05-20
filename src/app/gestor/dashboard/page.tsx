@@ -14,6 +14,7 @@ import {
 
 import { getDashboardStats } from "@/server/queries/dashboard";
 import { getLavagensAtivas } from "@/server/queries/lavagens";
+import { createClient } from "@/lib/supabase/server";
 import { StatCard } from "@/components/gestor/stat-card";
 import { StatusBadge } from "@/components/status-badge";
 import { PlacaTag } from "@/components/placa-tag";
@@ -27,10 +28,15 @@ function saudacao(): string {
 }
 
 export default async function DashboardPage() {
-  const [stats, lavagensAtivas] = await Promise.all([
+  const supabase = await createClient();
+  const [stats, lavagensAtivas, { data: { user } }] = await Promise.all([
     getDashboardStats(),
     getLavagensAtivas(),
+    supabase.auth.getUser(),
   ]);
+  const nomeGestor = user?.user_metadata?.name
+    || user?.email?.split("@")[0]
+    || "";
 
   const top5 = lavagensAtivas.slice(0, 5);
 
@@ -39,8 +45,8 @@ export default async function DashboardPage() {
       {/* Page head */}
       <div className="mb-5 flex flex-col gap-3 max-md:items-stretch md:flex-row md:items-end md:justify-between">
         <div>
-          <div className="text-[13px] font-medium text-[var(--muted)]">
-            {saudacao()}, Marquinhos ☀️
+          <div className="text-[13px] font-medium text-muted-foreground">
+            {saudacao()}{nomeGestor ? `, ${nomeGestor}` : ""} ☀️
           </div>
           <h1 className="font-heading text-[30px] font-bold leading-tight tracking-[-0.025em]">
             Como ta o dia hoje?
@@ -123,7 +129,7 @@ export default async function DashboardPage() {
               <h3 className="font-heading text-base font-bold">
                 Lavagens ativas agora
               </h3>
-              <div className="text-xs text-[var(--muted)]">
+              <div className="text-xs text-muted-foreground">
                 As {Math.min(5, lavagensAtivas.length)} mais recentes
               </div>
             </div>
@@ -139,7 +145,7 @@ export default async function DashboardPage() {
           {/* List */}
           <div className="flex flex-col gap-2 p-3.5">
             {top5.length === 0 && (
-              <div className="py-5 text-center text-[var(--muted)]">
+              <div className="py-5 text-center text-muted-foreground">
                 Sem lavagens ativas agora. Bora puxar a primeira do dia! 🧽
               </div>
             )}
@@ -154,7 +160,7 @@ export default async function DashboardPage() {
                   <div className="truncate text-sm font-semibold">
                     {l.cliente?.nome}
                   </div>
-                  <div className="truncate text-xs text-[var(--muted)]">
+                  <div className="truncate text-xs text-muted-foreground">
                     {l.servico?.nome} · {l.veiculo?.modelo}
                   </div>
                 </div>

@@ -54,6 +54,7 @@ export const configLojaSchema = z.object({
 
 export const aparenciaSchema = z.object({
   tema: z.enum(['claro', 'escuro']),
+  paleta: z.enum(['esmeralda', 'oceano', 'sol-coral', 'lavanda', 'asfalto']),
   cor_primaria: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Cor hex inválida'),
 })
 

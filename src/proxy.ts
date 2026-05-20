@@ -38,6 +38,13 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // /gestor exato → /gestor/dashboard
+  if (request.nextUrl.pathname === '/gestor' && user) {
+    const url = request.nextUrl.clone()
+    url.pathname = '/gestor/dashboard'
+    return NextResponse.redirect(url)
+  }
+
   // Redirecionar /login pra dashboard se já autenticado
   if (request.nextUrl.pathname === '/login' && user) {
     const url = request.nextUrl.clone()

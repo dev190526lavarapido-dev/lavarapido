@@ -86,7 +86,10 @@ export function LavagensView({ lavagens }: LavagensViewProps) {
   }, [search, lavagens])
 
   const byStatus = useCallback(
-    (key: LavagemStatus) => filtered.filter((l) => l.status_atual === key),
+    (key: LavagemStatus) =>
+      filtered
+        .filter((l) => l.status_atual === key)
+        .sort((a, b) => new Date(a.entrada_em).getTime() - new Date(b.entrada_em).getTime()),
     [filtered],
   )
 
@@ -190,7 +193,7 @@ export function LavagensView({ lavagens }: LavagensViewProps) {
 
         {/* Empty state */}
         {items.length === 0 && (
-          <div className="text-center text-xs text-[var(--muted)]" style={{ padding: '14px 6px' }}>
+          <div className="text-center text-xs text-muted-foreground" style={{ padding: '14px 6px' }}>
             {filter === 'todos' ? 'Vazio' : 'Nenhuma lavagem aqui agora'}
           </div>
         )}
@@ -221,10 +224,10 @@ export function LavagensView({ lavagens }: LavagensViewProps) {
           <h1 className="font-heading text-[30px] font-bold leading-tight tracking-tight">
             Lavagens
           </h1>
-          <p className="mt-1 hidden text-sm text-[var(--muted)] sm:block">
+          <p className="mt-1 hidden text-sm text-muted-foreground sm:block">
             Arrasta o card pra outra coluna ou toca pra ver detalhes.
           </p>
-          <p className="mt-1 text-sm text-[var(--muted)] sm:hidden">
+          <p className="mt-1 text-sm text-muted-foreground sm:hidden">
             Toca o card pra ver detalhes e mudar status.
           </p>
         </div>
@@ -241,9 +244,9 @@ export function LavagensView({ lavagens }: LavagensViewProps) {
 
       {/* Search pill */}
       <div className="mb-2.5 flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 py-2">
-        <Search size={16} className="text-[var(--muted)]" />
+        <Search size={16} className="text-muted-foreground" />
         <input
-          className="flex-1 border-0 bg-transparent text-sm outline-none placeholder:text-[var(--muted)]"
+          className="flex-1 border-0 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           placeholder="Buscar por placa, cliente ou modelo..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -307,7 +310,7 @@ export function LavagensView({ lavagens }: LavagensViewProps) {
                   </span>
                 </div>
                 {items.length === 0 && (
-                  <div className="py-3.5 px-1.5 text-center text-xs text-[var(--muted)]">
+                  <div className="py-3.5 px-1.5 text-center text-xs text-muted-foreground">
                     Nenhuma lavagem aqui agora
                   </div>
                 )}

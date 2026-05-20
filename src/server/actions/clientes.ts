@@ -27,6 +27,106 @@ export async function criarCliente(data: { nome: string; whatsapp: string }): Pr
   return { data: cliente as Cliente }
 }
 
+export async function atualizarCliente(
+  clienteId: string,
+  data: { nome: string; whatsapp: string }
+): Promise<{ data?: Cliente; error?: string }> {
+  const parsed = clienteSchema.safeParse(data)
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Dados inválidos' }
+  }
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Não autenticado' }
+
+  const { data: cliente, error } = await supabase
+    .from('clientes')
+    .update(parsed.data)
+    .eq('id', clienteId)
+    .eq('user_id', user.id)
+    .select()
+    .single()
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/gestor/clientes')
+  return { data: cliente as Cliente }
+}
+
+export async function atualizarVeiculo(
+  veiculoId: string,
+  data: { placa: string; modelo?: string; cor?: string }
+): Promise<{ data?: Veiculo; error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Não autenticado' }
+
+  const { data: veiculo, error } = await supabase
+    .from('veiculos')
+    .update({
+      placa: data.placa.toUpperCase().trim(),
+      modelo: data.modelo?.trim() ?? '',
+      cor: data.cor?.trim() ?? '',
+    })
+    .eq('id', veiculoId)
+    .eq('user_id', user.id)
+    .select()
+    .single()
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/gestor/clientes')
+  return { data: veiculo as Veiculo }
+}
+
+export async function adicionarVeiculo(
+  clienteId: string,
+  data: { placa: string; modelo?: string; cor?: string }
+): Promise<{ data?: Veiculo; error?: string }> {
+  const parsedVeiculo = veiculoSchema.safeParse({
+    ...data,
+    cliente_id: clienteId,
+  })
+  if (!parsedVeiculo.success) {
+    return { error: parsedVeiculo.error.issues[0]?.message ?? 'Dados inválidos' }
+  }
+
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Não autenticado' }
+
+  const { data: veiculo, error } = await supabase
+    .from('veiculos')
+    .insert({ ...parsedVeiculo.data, user_id: user.id })
+    .select()
+    .single()
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/gestor/clientes')
+  return { data: veiculo as Veiculo }
+}
+
+export async function removerVeiculo(
+  veiculoId: string
+): Promise<{ error?: string }> {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Não autenticado' }
+
+  const { error } = await supabase
+    .from('veiculos')
+    .delete()
+    .eq('id', veiculoId)
+    .eq('user_id', user.id)
+
+  if (error) return { error: error.message }
+
+  revalidatePath('/gestor/clientes')
+  return {}
+}
+
 export async function criarClienteComVeiculo(
   clienteData: { nome: string; whatsapp: string },
   veiculoData: { placa: string; modelo?: string; cor?: string }

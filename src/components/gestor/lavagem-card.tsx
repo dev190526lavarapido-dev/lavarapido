@@ -117,7 +117,7 @@ export function LavagemCard({
       )}
 
       {/* Hora entrada */}
-      <div className="flex items-center gap-2.5 text-xs text-[var(--muted)]">
+      <div className="flex items-center gap-2.5 text-xs text-muted-foreground">
         <Clock size={12} />
         <span>{formatHM(lavagem.entrada_em)}</span>
       </div>

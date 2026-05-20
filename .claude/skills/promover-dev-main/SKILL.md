@@ -5,14 +5,53 @@ description: Use APENAS quando o usuário tiver confirmado em DUAS etapas (no ch
 
 # Skill: Promover dev → main (release pra produção)
 
-## Variáveis do projeto (substituir ao adotar)
+## Variáveis do projeto
 
-| Placeholder | Descrição | Exemplo |
+| Variável | Valor |
+|---|---|
+| `{{PROD_URL}}` | *(definir após primeiro deploy — ex: `https://lavarapido.vercel.app`)* |
+| `{{SUPABASE_DEV_REF}}` | `xvwfnldvbxequhabunqi` |
+| `{{SUPABASE_PROD_REF}}` | *(usuário vai fornecer as chaves PROD)* |
+| `{{GITHUB_REPO}}` | `dev190526lavarapido-dev/lavarapido` |
+
+## Setup Vercel (primeira vez)
+
+1. Importar repositório no Vercel Dashboard (framework: Next.js, auto-detected)
+2. Configurar env vars no Vercel — **separar por ambiente**:
+
+| Variável | Production | Preview / Development |
 |---|---|---|
-| `{{PROD_URL}}` | URL de produção (Vercel ou outro) | `https://meuapp.vercel.app` |
-| `{{SUPABASE_DEV_REF}}` | Project ref do Supabase DEV | `abcdefghijklmnopqrst` |
-| `{{SUPABASE_PROD_REF}}` | Project ref do Supabase PROD | `zyxwvutsrqponmlkjihg` |
-| `{{GITHUB_REPO}}` | Repositório GitHub (owner/repo) | `meu-org/meu-app` |
+| `NEXT_PUBLIC_SUPABASE_URL` | URL do Supabase PROD | URL do Supabase DEV |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Key PROD | Key DEV |
+
+3. Branch settings: `main` = Production, pushes em `dev` geram Preview
+4. Build command: `next build` (auto)
+5. Framework preset: Next.js (auto-detected)
+
+### Checklist pós-import Vercel
+
+- [ ] Env vars de PROD configuradas (Supabase PROD URL + key)
+- [ ] Env vars de Preview configuradas (Supabase DEV URL + key)
+- [ ] Domínio customizado apontado (se houver)
+- [ ] Supabase Auth redirect URIs atualizadas com domínio Vercel
+- [ ] Primeiro deploy em main sucesso (HTTP 200)
+- [ ] Login funciona em produção
+- [ ] Storage bucket `loja` existe no Supabase PROD
+
+## Setup Supabase PROD (primeira vez)
+
+1. Criar projeto Supabase PROD (ou receber chaves do usuário)
+2. Aplicar TODAS as migrations em sequência:
+   ```bash
+   supabase link --project-ref <PROD_REF>
+   supabase db push --linked
+   ```
+3. Criar storage bucket `loja` (executar SQL da migration `20260520150000_create_storage_bucket_loja.sql`)
+4. Configurar Auth:
+   - Site URL = domínio Vercel de produção
+   - Redirect URIs: `https://<dominio>/auth/callback`, `https://<dominio>/gestor/dashboard`
+5. Seed de dados iniciais (gestor user + config loja) via Dashboard ou SQL
+6. Voltar link pra DEV: `supabase link --project-ref xvwfnldvbxequhabunqi`
 
 ## Quando ativar
 

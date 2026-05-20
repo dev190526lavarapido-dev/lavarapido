@@ -85,6 +85,13 @@ export function WhatsAppModal({ lavagem, tipo: tipoProp, loja, onClose }: WhatsA
     setMsg(buildMsg(tipoProp))
   }
 
+  // Regenerar mensagem quando loja carrega depois do modal já aberto
+  useEffect(() => {
+    if (loja && lavagem && !msg) {
+      setMsg(buildMsg(activeTipo))
+    }
+  }, [loja, lavagem, msg, buildMsg, activeTipo])
+
   const handlePreset = (t: string) => {
     setActiveTipo(t)
     setMsg(buildMsg(t))
@@ -135,7 +142,7 @@ export function WhatsAppModal({ lavagem, tipo: tipoProp, loja, onClose }: WhatsA
           </div>
           <div className="min-w-0 flex-1">
             <div className="text-sm font-semibold">{cliente.nome}</div>
-            <div className="font-mono text-xs text-[var(--muted)]">{cliente.whatsapp}</div>
+            <div className="font-mono text-xs text-muted-foreground">{cliente.whatsapp}</div>
           </div>
         </div>
 
@@ -173,7 +180,7 @@ export function WhatsAppModal({ lavagem, tipo: tipoProp, loja, onClose }: WhatsA
         <div className="mt-4 flex flex-col gap-1.5">
           <label className="text-[13px] font-medium text-[var(--ink-2)]">Editar mensagem</label>
           <textarea
-            className="w-full resize-y rounded-xl border border-[var(--line)] bg-[var(--surface)] px-3.5 py-3 text-[15px] text-[var(--ink)] outline-none transition-all min-h-[88px] focus:border-[var(--brand)] focus:shadow-[0_0_0_4px_color-mix(in_oklab,var(--brand)_22%,transparent)] placeholder:text-[var(--muted)]"
+            className="w-full resize-y rounded-xl border border-[var(--line)] bg-[var(--surface)] px-3.5 py-3 text-[15px] text-[var(--ink)] outline-none transition-all min-h-[88px] focus:border-[var(--brand)] focus:shadow-[0_0_0_4px_color-mix(in_oklab,var(--brand)_22%,transparent)] placeholder:text-muted-foreground"
             value={msg}
             onChange={(e) => setMsg(e.target.value)}
             rows={6}
@@ -181,7 +188,7 @@ export function WhatsAppModal({ lavagem, tipo: tipoProp, loja, onClose }: WhatsA
         </div>
 
         {/* Hint */}
-        <div className="mt-2 text-xs text-[var(--muted)]">
+        <div className="mt-2 text-xs text-muted-foreground">
           Lembrando: <strong>wa.me</strong> abre o WhatsApp com a mensagem pronta — você precisa clicar em enviar lá.
         </div>
 

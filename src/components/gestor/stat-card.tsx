@@ -55,7 +55,7 @@ export function StatCard({
       <div
         className={cn(
           "text-xs font-medium tracking-[0.01em]",
-          isMoney ? "text-[var(--brand-ink)]" : "text-[var(--muted)]",
+          isMoney ? "text-[var(--brand-ink)]" : "text-muted-foreground",
         )}
       >
         {label}

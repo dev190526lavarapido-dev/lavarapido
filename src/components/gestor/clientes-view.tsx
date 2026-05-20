@@ -2,11 +2,18 @@
 
 import { useState, useMemo, useEffect, useTransition } from 'react'
 import { useRouter } from 'next/navigation'
-import { Search, Plus } from 'lucide-react'
+import { Search, Plus, Pencil, Trash2, Check, Car } from 'lucide-react'
 import { PlacaTag } from '@/components/placa-tag'
 import { StatusBadge } from '@/components/status-badge'
 import { waLink } from '@/lib/whatsapp'
-import { criarClienteComVeiculo } from '@/server/actions/clientes'
+import { moneyBR } from '@/components/money'
+import {
+  criarClienteComVeiculo,
+  atualizarCliente,
+  atualizarVeiculo,
+  adicionarVeiculo,
+  removerVeiculo,
+} from '@/server/actions/clientes'
 import { createClient } from '@/lib/supabase/client'
 import type { ClienteComVeiculos, Veiculo, LavagemComDetalhes } from '@/lib/types'
 import type { LavagemStatus } from '@/lib/constants'
@@ -110,9 +117,9 @@ export function ClientesView({ clientes, totalVeiculos }: ClientesViewProps) {
 
       {/* Search pill */}
       <div className="mb-3.5 flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 py-2">
-        <Search size={16} className="text-[var(--muted)]" />
+        <Search size={16} className="text-muted-foreground" />
         <input
-          className="flex-1 border-0 bg-transparent text-sm outline-none placeholder:text-[var(--muted)]"
+          className="flex-1 border-0 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
           placeholder="Buscar por nome, placa ou WhatsApp..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
@@ -138,7 +145,7 @@ export function ClientesView({ clientes, totalVeiculos }: ClientesViewProps) {
             {/* Info */}
             <div className="min-w-0 flex-1">
               <div className="text-sm font-semibold">{c.nome}</div>
-              <div className="font-mono text-xs text-[var(--muted)]">
+              <div className="font-mono text-xs text-muted-foreground">
                 {c.whatsapp}
               </div>
               {c.veiculos.length > 0 && (
@@ -151,13 +158,13 @@ export function ClientesView({ clientes, totalVeiculos }: ClientesViewProps) {
             </div>
 
             {/* Lavagens count */}
-            <div className="flex-none text-right text-xs text-[var(--muted)]">
+            <div className="flex-none text-right text-xs text-muted-foreground">
               {c.total_lavagens} lavagens
             </div>
           </button>
         ))}
         {items.length === 0 && (
-          <div className="py-6 text-center text-sm text-[var(--muted)]">
+          <div className="py-6 text-center text-sm text-muted-foreground">
             Ninguem aqui ainda.
           </div>
         )}
@@ -189,16 +196,34 @@ interface ClienteDetalheModalProps {
   onClose: () => void
 }
 
+interface ClienteDetalheData {
+  id: string
+  nome: string
+  whatsapp: string
+  veiculos: Veiculo[]
+  lavagens: LavagemComDetalhes[]
+}
+
 function ClienteDetalheModal({ clienteId, onClose }: ClienteDetalheModalProps) {
-  const [cliente, setCliente] = useState<{
-    nome: string
-    whatsapp: string
-    veiculos: Veiculo[]
-    lavagens: (LavagemComDetalhes)[]
-  } | null>(null)
+  const router = useRouter()
+  const [isPending, startTransition] = useTransition()
+  const [cliente, setCliente] = useState<ClienteDetalheData | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // Fetch client details via browser client
+  // Edição perfil
+  const [editingPerfil, setEditingPerfil] = useState(false)
+  const [perfilForm, setPerfilForm] = useState({ nome: '', whatsapp: '' })
+  const [perfilError, setPerfilError] = useState('')
+
+  // Edição veículo
+  const [editingVeiculoId, setEditingVeiculoId] = useState<string | null>(null)
+  const [veiculoForm, setVeiculoForm] = useState({ placa: '', modelo: '', cor: '' })
+  const [veiculoError, setVeiculoError] = useState('')
+
+  // Novo veículo
+  const [addingVeiculo, setAddingVeiculo] = useState(false)
+  const [novoVeiculoForm, setNovoVeiculoForm] = useState({ placa: '', modelo: '', cor: '' })
+
   useEffect(() => {
     let cancelled = false
     const supabase = createClient()
@@ -227,6 +252,7 @@ function ClienteDetalheModal({ clienteId, onClose }: ClienteDetalheModalProps) {
 
       if (!cancelled) {
         setCliente({
+          id: c.id,
           nome: c.nome,
           whatsapp: c.whatsapp,
           veiculos: (veiculos ?? []) as Veiculo[],
@@ -239,11 +265,115 @@ function ClienteDetalheModal({ clienteId, onClose }: ClienteDetalheModalProps) {
     return () => { cancelled = true }
   }, [clienteId])
 
+  const handleSavePerfil = () => {
+    if (!perfilForm.nome.trim() || !perfilForm.whatsapp.trim()) {
+      setPerfilError('Nome e WhatsApp são obrigatórios.')
+      return
+    }
+    setPerfilError('')
+    startTransition(async () => {
+      const result = await atualizarCliente(clienteId, {
+        nome: perfilForm.nome.trim(),
+        whatsapp: perfilForm.whatsapp.trim(),
+      })
+      if (result.error) {
+        setPerfilError(result.error)
+        return
+      }
+      setCliente((prev) =>
+        prev ? { ...prev, nome: perfilForm.nome.trim(), whatsapp: perfilForm.whatsapp.trim() } : prev
+      )
+      setEditingPerfil(false)
+      router.refresh()
+    })
+  }
+
+  const handleSaveVeiculo = (veiculoId: string) => {
+    if (!veiculoForm.placa.trim()) {
+      setVeiculoError('Placa é obrigatória.')
+      return
+    }
+    setVeiculoError('')
+    startTransition(async () => {
+      const result = await atualizarVeiculo(veiculoId, {
+        placa: veiculoForm.placa.trim(),
+        modelo: veiculoForm.modelo.trim(),
+        cor: veiculoForm.cor.trim(),
+      })
+      if (result.error) {
+        setVeiculoError(result.error)
+        return
+      }
+      setCliente((prev) => {
+        if (!prev) return prev
+        return {
+          ...prev,
+          veiculos: prev.veiculos.map((v) =>
+            v.id === veiculoId
+              ? { ...v, placa: veiculoForm.placa.toUpperCase().trim(), modelo: veiculoForm.modelo.trim(), cor: veiculoForm.cor.trim() }
+              : v
+          ),
+        }
+      })
+      setEditingVeiculoId(null)
+      router.refresh()
+    })
+  }
+
+  const handleAddVeiculo = () => {
+    if (!novoVeiculoForm.placa.trim()) {
+      setVeiculoError('Placa é obrigatória.')
+      return
+    }
+    setVeiculoError('')
+    startTransition(async () => {
+      const result = await adicionarVeiculo(clienteId, {
+        placa: novoVeiculoForm.placa.trim(),
+        modelo: novoVeiculoForm.modelo.trim(),
+        cor: novoVeiculoForm.cor.trim(),
+      })
+      if (result.error) {
+        setVeiculoError(result.error)
+        return
+      }
+      if (result.data) {
+        setCliente((prev) =>
+          prev ? { ...prev, veiculos: [...prev.veiculos, result.data!] } : prev
+        )
+      }
+      setNovoVeiculoForm({ placa: '', modelo: '', cor: '' })
+      setAddingVeiculo(false)
+      router.refresh()
+    })
+  }
+
+  const handleRemoveVeiculo = (veiculoId: string) => {
+    startTransition(async () => {
+      const result = await removerVeiculo(veiculoId)
+      if (result.error) {
+        setVeiculoError(result.error)
+        return
+      }
+      setCliente((prev) =>
+        prev ? { ...prev, veiculos: prev.veiculos.filter((v) => v.id !== veiculoId) } : prev
+      )
+      router.refresh()
+    })
+  }
+
+  function formatDate(dateStr: string): string {
+    return new Date(dateStr).toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit',
+    })
+  }
+
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-md">
         {loading || !cliente ? (
-          <div className="py-8 text-center text-sm text-[var(--muted)]">
+          <div className="py-8 text-center text-sm text-muted-foreground">
             Carregando...
           </div>
         ) : (
@@ -251,91 +381,282 @@ function ClienteDetalheModal({ clienteId, onClose }: ClienteDetalheModalProps) {
             <DialogHeader>
               <DialogTitle>{cliente.nome}</DialogTitle>
               <DialogDescription className="sr-only">
-                Detalhes do cliente
+                Detalhes e edição do cliente
               </DialogDescription>
             </DialogHeader>
 
-            {/* WhatsApp row */}
-            <div className="flex items-center justify-between">
-              <span className="font-mono text-sm text-[var(--muted)]">
-                {cliente.whatsapp}
-              </span>
-              <a
-                href={waLink(cliente.whatsapp, 'Oi! Tudo bem?')}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-lg bg-[#25D366] px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90"
-              >
-                <WhatsAppIcon />
-                WhatsApp
-              </a>
-            </div>
-
-            {/* Veiculos */}
+            {/* ── Perfil ── */}
             <div>
-              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
-                Veiculos
-              </h3>
-              <div className="flex flex-col gap-2">
-                {cliente.veiculos.map((v) => (
-                  <div
-                    key={v.id}
-                    className="flex items-center justify-between rounded-xl border border-[var(--line)] px-3 py-2.5"
-                  >
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <PlacaTag placa={v.placa} size="sm" />
-                        <span className="text-sm font-semibold">
-                          {v.modelo}
-                        </span>
-                      </div>
-                      {v.cor && (
-                        <div className="mt-1 text-xs text-[var(--muted)]">
-                          {v.cor}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Historico */}
-            <div>
-              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-[var(--muted)]">
-                Historico
-              </h3>
-              <div className="flex flex-col gap-2">
-                {cliente.lavagens.map((l) => (
+              <div className="mb-2 flex items-center justify-between">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Perfil
+                </h3>
+                {!editingPerfil && (
                   <button
-                    key={l.id}
                     type="button"
-                    className="flex w-full items-center justify-between rounded-xl border border-[var(--line)] px-3 py-2.5 text-left transition-colors hover:bg-[var(--surface-2)]"
+                    className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-[var(--ink-2)] hover:bg-[var(--bg-2)]"
                     onClick={() => {
-                      onClose()
-                      window.location.href = '/gestor/lavagens'
+                      setPerfilForm({ nome: cliente.nome, whatsapp: cliente.whatsapp })
+                      setEditingPerfil(true)
+                      setPerfilError('')
                     }}
                   >
-                    <div>
-                      <div className="text-[13px] font-semibold">
-                        {l.servico?.nome}
+                    <Pencil size={12} /> Editar
+                  </button>
+                )}
+              </div>
+
+              {editingPerfil ? (
+                <div className="flex flex-col gap-2.5 rounded-xl border border-[var(--line)] bg-[var(--surface-2)] p-3">
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[12px] font-medium text-[var(--ink-2)]">Nome</label>
+                    <Input
+                      value={perfilForm.nome}
+                      onChange={(e) => setPerfilForm({ ...perfilForm, nome: e.target.value })}
+                      autoFocus
+                    />
+                  </div>
+                  <div className="flex flex-col gap-1">
+                    <label className="text-[12px] font-medium text-[var(--ink-2)]">WhatsApp</label>
+                    <Input
+                      className="font-mono"
+                      value={perfilForm.whatsapp}
+                      onChange={(e) => setPerfilForm({ ...perfilForm, whatsapp: e.target.value })}
+                    />
+                  </div>
+                  {perfilError && <p className="text-xs text-[var(--rose)]">{perfilError}</p>}
+                  <div className="flex gap-2">
+                    <Button size="sm" onClick={handleSavePerfil} disabled={isPending}>
+                      <Check size={14} /> {isPending ? 'Salvando...' : 'Salvar'}
+                    </Button>
+                    <Button size="sm" variant="ghost" onClick={() => setEditingPerfil(false)}>
+                      Cancelar
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-between rounded-xl border border-[var(--line)] px-3 py-2.5">
+                  <div>
+                    <div className="text-sm font-semibold">{cliente.nome}</div>
+                    <div className="font-mono text-xs text-muted-foreground">{cliente.whatsapp}</div>
+                  </div>
+                  <a
+                    href={waLink(cliente.whatsapp, 'Oi! Tudo bem?')}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-[#25D366] px-3 py-1.5 text-xs font-semibold text-white transition-opacity hover:opacity-90"
+                  >
+                    <WhatsAppIcon />
+                    WhatsApp
+                  </a>
+                </div>
+              )}
+            </div>
+
+            {/* ── Veículos ── */}
+            <div>
+              <div className="mb-2 flex items-center justify-between">
+                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                  Veículos
+                </h3>
+                {!addingVeiculo && (
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-[var(--ink-2)] hover:bg-[var(--bg-2)]"
+                    onClick={() => {
+                      setAddingVeiculo(true)
+                      setNovoVeiculoForm({ placa: '', modelo: '', cor: '' })
+                      setVeiculoError('')
+                    }}
+                  >
+                    <Plus size={12} /> Adicionar
+                  </button>
+                )}
+              </div>
+
+              <div className="flex flex-col gap-2">
+                {cliente.veiculos.map((v) =>
+                  editingVeiculoId === v.id ? (
+                    <div key={v.id} className="flex flex-col gap-2 rounded-xl border border-[var(--line)] bg-[var(--surface-2)] p-3">
+                      <div className="flex gap-2">
+                        <div className="flex flex-1 flex-col gap-1">
+                          <label className="text-[12px] font-medium text-[var(--ink-2)]">Placa</label>
+                          <Input
+                            className="font-mono uppercase"
+                            value={veiculoForm.placa}
+                            onChange={(e) => setVeiculoForm({ ...veiculoForm, placa: e.target.value.toUpperCase() })}
+                            autoFocus
+                          />
+                        </div>
+                        <div className="flex flex-1 flex-col gap-1">
+                          <label className="text-[12px] font-medium text-[var(--ink-2)]">Cor</label>
+                          <Input
+                            value={veiculoForm.cor}
+                            onChange={(e) => setVeiculoForm({ ...veiculoForm, cor: e.target.value })}
+                          />
+                        </div>
                       </div>
-                      <div className="text-xs text-[var(--muted)]">
-                        {l.veiculo?.placa} · {formatHM(l.entrada_em)}
+                      <div className="flex flex-col gap-1">
+                        <label className="text-[12px] font-medium text-[var(--ink-2)]">Modelo</label>
+                        <Input
+                          value={veiculoForm.modelo}
+                          onChange={(e) => setVeiculoForm({ ...veiculoForm, modelo: e.target.value })}
+                        />
+                      </div>
+                      {veiculoError && <p className="text-xs text-[var(--rose)]">{veiculoError}</p>}
+                      <div className="flex gap-2">
+                        <Button size="sm" onClick={() => handleSaveVeiculo(v.id)} disabled={isPending}>
+                          <Check size={14} /> Salvar
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => { setEditingVeiculoId(null); setVeiculoError('') }}>
+                          Cancelar
+                        </Button>
                       </div>
                     </div>
-                    <StatusBadge
-                      status={l.status_atual as LavagemStatus}
-                      size="sm"
-                    />
-                  </button>
-                ))}
-                {cliente.lavagens.length === 0 && (
-                  <div className="py-3 text-center text-[13px] text-[var(--muted)]">
-                    Sem historico ainda.
+                  ) : (
+                    <div
+                      key={v.id}
+                      className="flex items-center justify-between rounded-xl border border-[var(--line)] px-3 py-2.5"
+                    >
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <PlacaTag placa={v.placa} size="sm" />
+                          <span className="text-sm font-semibold">{v.modelo}</span>
+                        </div>
+                        {v.cor && (
+                          <div className="mt-1 text-xs text-muted-foreground">{v.cor}</div>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          className="inline-flex h-[30px] w-[30px] items-center justify-center rounded-lg text-[var(--ink-2)] hover:bg-[var(--bg-2)]"
+                          title="Editar veículo"
+                          onClick={() => {
+                            setVeiculoForm({ placa: v.placa, modelo: v.modelo, cor: v.cor })
+                            setEditingVeiculoId(v.id)
+                            setVeiculoError('')
+                          }}
+                        >
+                          <Pencil size={13} />
+                        </button>
+                        <button
+                          type="button"
+                          className="inline-flex h-[30px] w-[30px] items-center justify-center rounded-lg text-[var(--rose)] hover:bg-[color-mix(in_oklab,var(--rose)_10%,transparent)]"
+                          title="Remover veículo"
+                          onClick={() => handleRemoveVeiculo(v.id)}
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
+                    </div>
+                  )
+                )}
+
+                {/* Formulário novo veículo */}
+                {addingVeiculo && (
+                  <div className="flex flex-col gap-2 rounded-xl border border-dashed border-[var(--line)] bg-[var(--surface-2)] p-3">
+                    <div className="flex gap-2">
+                      <div className="flex flex-1 flex-col gap-1">
+                        <label className="text-[12px] font-medium text-[var(--ink-2)]">Placa</label>
+                        <Input
+                          className="font-mono uppercase"
+                          value={novoVeiculoForm.placa}
+                          onChange={(e) => setNovoVeiculoForm({ ...novoVeiculoForm, placa: e.target.value.toUpperCase() })}
+                          autoFocus
+                          placeholder="ABC1D23"
+                        />
+                      </div>
+                      <div className="flex flex-1 flex-col gap-1">
+                        <label className="text-[12px] font-medium text-[var(--ink-2)]">Cor</label>
+                        <Input
+                          value={novoVeiculoForm.cor}
+                          onChange={(e) => setNovoVeiculoForm({ ...novoVeiculoForm, cor: e.target.value })}
+                          placeholder="Prata"
+                        />
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <label className="text-[12px] font-medium text-[var(--ink-2)]">Modelo</label>
+                      <Input
+                        value={novoVeiculoForm.modelo}
+                        onChange={(e) => setNovoVeiculoForm({ ...novoVeiculoForm, modelo: e.target.value })}
+                        placeholder="Honda Civic"
+                      />
+                    </div>
+                    {veiculoError && <p className="text-xs text-[var(--rose)]">{veiculoError}</p>}
+                    <div className="flex gap-2">
+                      <Button size="sm" onClick={handleAddVeiculo} disabled={isPending}>
+                        <Car size={14} /> {isPending ? 'Salvando...' : 'Adicionar'}
+                      </Button>
+                      <Button size="sm" variant="ghost" onClick={() => { setAddingVeiculo(false); setVeiculoError('') }}>
+                        Cancelar
+                      </Button>
+                    </div>
+                  </div>
+                )}
+
+                {cliente.veiculos.length === 0 && !addingVeiculo && (
+                  <div className="py-3 text-center text-[13px] text-muted-foreground">
+                    Nenhum veículo cadastrado.
                   </div>
                 )}
               </div>
+            </div>
+
+            {/* ── Extrato de lavagens ── */}
+            <div>
+              <h3 className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Extrato de lavagens
+              </h3>
+              {cliente.lavagens.length === 0 ? (
+                <div className="py-3 text-center text-[13px] text-muted-foreground">
+                  Sem histórico ainda.
+                </div>
+              ) : (
+                <div className="flex flex-col gap-0">
+                  {cliente.lavagens.map((l, idx) => {
+                    const isLast = idx === cliente.lavagens.length - 1
+                    const hadOcorrencia = l.ocorrencia_descricao && l.ocorrencia_descricao.trim() !== ''
+                    return (
+                      <div key={l.id} className="flex gap-3">
+                        {/* Timeline dot + line */}
+                        <div className="flex flex-col items-center">
+                          <div
+                            className="mt-1.5 h-2.5 w-2.5 flex-none rounded-full border-2"
+                            style={{
+                              borderColor: hadOcorrencia ? 'var(--rose)' : 'var(--brand)',
+                              background: hadOcorrencia ? 'var(--rose)' : 'var(--brand)',
+                            }}
+                          />
+                          {!isLast && (
+                            <div className="w-px flex-1 bg-[var(--line)]" />
+                          )}
+                        </div>
+                        {/* Content */}
+                        <div className={`flex-1 pb-4 ${isLast ? '' : ''}`}>
+                          <div className="flex items-center justify-between gap-2">
+                            <div className="text-[13px] font-semibold">{l.servico?.nome}</div>
+                            <div className="text-sm font-bold">{moneyBR(l.valor)}</div>
+                          </div>
+                          <div className="mt-0.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                            <span>{formatDate(l.entrada_em)}</span>
+                            <span>&middot;</span>
+                            <span>{l.veiculo?.placa}</span>
+                            <span>&middot;</span>
+                            <StatusBadge status={l.status_atual as LavagemStatus} size="sm" />
+                          </div>
+                          {hadOcorrencia && (
+                            <div className="mt-1 rounded-lg bg-[color-mix(in_oklab,var(--rose)_8%,transparent)] px-2 py-1 text-xs text-[var(--rose)]">
+                              ⚠ {l.ocorrencia_descricao}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
           </>
         )}

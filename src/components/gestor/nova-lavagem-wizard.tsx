@@ -60,7 +60,7 @@ function WizardStep({
   return (
     <div
       className={cn(
-        "flex items-center gap-2 text-[13px] font-medium text-[var(--muted)]",
+        "flex items-center gap-2 text-[13px] font-medium text-muted-foreground",
         isActive && "text-[var(--ink)]",
         isDone && "text-[var(--ink-2)]"
       )}
@@ -68,7 +68,7 @@ function WizardStep({
       <span
         className={cn(
           "grid h-6 w-6 place-items-center rounded-full text-xs font-semibold",
-          "bg-[var(--bg-2)] text-[var(--muted)]",
+          "bg-[var(--bg-2)] text-muted-foreground",
           (isActive || isDone) &&
             "bg-[var(--brand)] text-[var(--brand-ink)]"
         )}
@@ -94,7 +94,7 @@ function RowInfo({
 }) {
   return (
     <div className="flex items-center justify-between border-b border-dashed border-[var(--line)] pb-2">
-      <span className="text-[13px] text-[var(--muted)]">{label}</span>
+      <span className="text-[13px] text-muted-foreground">{label}</span>
       <span
         className={cn(
           "text-sm",
@@ -247,10 +247,10 @@ export function NovaLavagemWizard({
             <>
               {/* Search pill */}
               <div className="flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 py-2">
-                <Search size={16} className="text-[var(--muted)]" />
+                <Search size={16} className="text-muted-foreground" />
                 <input
                   autoFocus
-                  className="flex-1 border-0 bg-transparent text-sm outline-none placeholder:text-[var(--muted)]"
+                  className="flex-1 border-0 bg-transparent text-sm outline-none placeholder:text-muted-foreground"
                   placeholder="Buscar por nome, WhatsApp ou placa..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -276,7 +276,7 @@ export function NovaLavagemWizard({
                     {/* Info */}
                     <div className="min-w-0 flex-1">
                       <div className="text-sm font-semibold">{c.nome}</div>
-                      <div className="text-xs font-mono text-[var(--muted)]">
+                      <div className="text-xs font-mono text-muted-foreground">
                         {c.whatsapp}
                       </div>
                       {/* Vehicles as buttons */}
@@ -299,7 +299,7 @@ export function NovaLavagemWizard({
                 ))}
 
                 {clientesFiltrados.length === 0 && (
-                  <div className="py-5 text-center text-sm text-[var(--muted)]">
+                  <div className="py-5 text-center text-sm text-muted-foreground">
                     Nenhum cliente encontrado. Cadastra agora ali em baixo
                     &#x1F447;
                   </div>
@@ -422,13 +422,13 @@ export function NovaLavagemWizard({
           {/* Selected client header */}
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-xs text-[var(--muted)]">Cliente</div>
+              <div className="text-xs text-muted-foreground">Cliente</div>
               <div className="font-semibold">{selectedCliente?.nome}</div>
               <div className="mt-2 flex items-center gap-2">
                 {selectedVeiculo && (
                   <PlacaTag placa={selectedVeiculo.placa} />
                 )}
-                <span className="text-[13px] text-[var(--muted)]">
+                <span className="text-[13px] text-muted-foreground">
                   {selectedVeiculo?.modelo} &middot; {selectedVeiculo?.cor}
                 </span>
               </div>
@@ -469,12 +469,12 @@ export function NovaLavagemWizard({
                     <div>
                       <div className="text-[15px] font-semibold">{s.nome}</div>
                       {s.descricao && (
-                        <div className="mt-0.5 text-[13px] text-[var(--muted)]">
+                        <div className="mt-0.5 text-[13px] text-muted-foreground">
                           {s.descricao}
                         </div>
                       )}
                       {s.tempo_estimado_minutos && (
-                        <div className="mt-2 flex items-center gap-1 text-xs text-[var(--muted)]">
+                        <div className="mt-2 flex items-center gap-1 text-xs text-muted-foreground">
                           <Clock size={12} /> ~{s.tempo_estimado_minutos} min
                         </div>
                       )}
@@ -510,7 +510,7 @@ export function NovaLavagemWizard({
       {step === 3 && selectedCliente && selectedVeiculo && selectedServico && (
         <div className="flex flex-col gap-4 rounded-[var(--radius-card)] border border-[var(--line)] bg-[var(--surface)] p-[18px]">
           <h3 className="font-heading text-lg font-bold">
-            Tudo certo, Marquinhos?
+            Tudo certo? Confere os dados
           </h3>
 
           <div className="flex flex-col gap-3">
@@ -539,7 +539,7 @@ export function NovaLavagemWizard({
             />
           </div>
 
-          <div className="text-xs text-[var(--muted)]">
+          <div className="text-xs text-muted-foreground">
             Ao confirmar, a gente cria a lavagem, gera o link de
             acompanhamento e já abre o WhatsApp com a mensagem de entrada
             pronta pra você revisar e enviar.

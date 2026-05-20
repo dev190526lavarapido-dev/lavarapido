@@ -41,6 +41,7 @@ export async function atualizarConfigLoja(data: {
 
 export async function atualizarAparencia(data: {
   tema: 'claro' | 'escuro'
+  paleta: 'esmeralda' | 'oceano' | 'sol-coral' | 'lavanda' | 'asfalto'
   cor_primaria: string
 }): Promise<{ data?: ConfigLoja; error?: string }> {
   const parsed = aparenciaSchema.safeParse(data)

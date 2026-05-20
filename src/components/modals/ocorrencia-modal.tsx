@@ -61,13 +61,13 @@ export function OcorrenciaModal({ lavagemId, descricaoAtual, onClose, onWhatsApp
         </div>
 
         {/* Hint */}
-        <p className="mt-2 text-[13px] text-[var(--muted)]">
+        <p className="mt-2 text-[13px] text-muted-foreground">
           O cliente vai ver essa descrição na página de acompanhamento.
         </p>
 
         {/* Textarea */}
         <textarea
-          className="mt-2 w-full resize-y rounded-xl border border-[var(--line)] bg-[var(--surface)] px-3.5 py-3 text-[15px] text-[var(--ink)] outline-none transition-all min-h-[88px] focus:border-[var(--brand)] focus:shadow-[0_0_0_4px_color-mix(in_oklab,var(--brand)_22%,transparent)] placeholder:text-[var(--muted)]"
+          className="mt-2 w-full resize-y rounded-xl border border-[var(--line)] bg-[var(--surface)] px-3.5 py-3 text-[15px] text-[var(--ink)] outline-none transition-all min-h-[88px] focus:border-[var(--brand)] focus:shadow-[0_0_0_4px_color-mix(in_oklab,var(--brand)_22%,transparent)] placeholder:text-muted-foreground"
           autoFocus
           value={desc}
           onChange={(e) => setDesc(e.target.value)}

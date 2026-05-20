@@ -143,7 +143,7 @@ export function LavagemDetalheModal({ lavagem, onClose, onOcorrencia, onWhatsApp
           {/* Status + entrada */}
           <div className="mb-2.5 flex items-center justify-between">
             <StatusBadge status={status} />
-            <span className="font-mono text-xs text-[var(--muted)]">
+            <span className="font-mono text-xs text-muted-foreground">
               Entrada {formatHM(lavagem.entrada_em)}
             </span>
           </div>
@@ -153,16 +153,16 @@ export function LavagemDetalheModal({ lavagem, onClose, onOcorrencia, onWhatsApp
             <PlacaTag placa={veiculo.placa} size="big" />
             <div className="min-w-0 flex-1">
               <div className="text-sm font-bold">{cliente.nome}</div>
-              <div className="font-mono text-xs text-[var(--muted)]">{cliente.whatsapp}</div>
+              <div className="font-mono text-xs text-muted-foreground">{cliente.whatsapp}</div>
             </div>
             <div className="text-right">
-              <div className="text-xs text-[var(--muted)]">{veiculo.modelo} &middot; {veiculo.cor}</div>
+              <div className="text-xs text-muted-foreground">{veiculo.modelo} &middot; {veiculo.cor}</div>
               <div className="font-heading text-[22px] font-bold">{moneyBR(lavagem.valor)}</div>
             </div>
           </div>
 
           {/* Servico */}
-          <div className="mt-2 text-[13px] text-[var(--muted)]">
+          <div className="mt-2 text-[13px] text-muted-foreground">
             {servico.nome} &mdash; {servico.descricao}
           </div>
 
@@ -188,13 +188,13 @@ export function LavagemDetalheModal({ lavagem, onClose, onOcorrencia, onWhatsApp
 
           {/* Acoes */}
           <div className="mt-4">
-            <h3 className="mb-2 text-[14px] font-semibold uppercase tracking-wider text-[var(--muted)]">
+            <h3 className="mb-2 text-[14px] font-semibold uppercase tracking-wider text-muted-foreground">
               Acoes
             </h3>
 
             {/* Acoes por status */}
             {status === 'retirado' ? (
-              <div className="text-sm text-[var(--muted)]">
+              <div className="text-sm text-muted-foreground">
                 Lavagem encerrada &middot; {lavagem.retirada_em ? formatHM(lavagem.retirada_em) : '--:--'}
               </div>
             ) : (
@@ -337,13 +337,13 @@ export function LavagemDetalheModal({ lavagem, onClose, onOcorrencia, onWhatsApp
 
           {/* Timeline */}
           <div className="mt-6">
-            <h3 className="mb-2 text-[14px] font-semibold uppercase tracking-wider text-[var(--muted)]">
+            <h3 className="mb-2 text-[14px] font-semibold uppercase tracking-wider text-muted-foreground">
               Linha do tempo
             </h3>
             {loadingEventos ? (
-              <div className="py-4 text-center text-xs text-[var(--muted)]">Carregando...</div>
+              <div className="py-4 text-center text-xs text-muted-foreground">Carregando...</div>
             ) : eventos.length === 0 ? (
-              <div className="py-4 text-center text-xs text-[var(--muted)]">Nenhum evento</div>
+              <div className="py-4 text-center text-xs text-muted-foreground">Nenhum evento</div>
             ) : (
               <Timeline eventos={eventos} />
             )}
