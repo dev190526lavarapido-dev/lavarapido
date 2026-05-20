@@ -58,7 +58,7 @@ export default function LoginPage() {
             Bom te ver de volta!
           </h1>
           <p className="text-[14px]" style={{ color: 'var(--muted-color)' }}>
-            Entra ai pra cuidar da galera de hoje.
+            Entra aí pra cuidar da galera de hoje.
           </p>
         </div>
 
@@ -128,7 +128,7 @@ export default function LoginPage() {
             className="inline-flex items-center gap-2 rounded-[var(--radius-btn)] px-3 py-1.5 text-[13px] font-semibold text-ink-2 transition-colors hover:bg-[var(--bg-2)] hover:text-ink"
           >
             <Store size={16} />
-            Ver vitrine publica
+            Ver vitrine pública
           </Link>
         </div>
       </div>

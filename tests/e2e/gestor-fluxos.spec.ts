@@ -74,7 +74,7 @@ test.describe('Fluxos do Gestor', () => {
     await expect(page.getByTestId('veiculo-btn').first()).toBeVisible()
     await page.getByTestId('veiculo-btn').first().click()
 
-    await expect(page.getByText('Escolha o servico')).toBeVisible()
+    await expect(page.getByText('Escolha o serviço')).toBeVisible()
     await page.getByTestId('servico-btn').first().click()
     await page.getByRole('button', { name: /Continuar/i }).click()
 
@@ -93,7 +93,7 @@ test.describe('Fluxos do Gestor', () => {
     await expect(page.getByTestId('veiculo-btn').first()).toBeVisible()
     await page.getByTestId('veiculo-btn').first().click()
 
-    await expect(page.getByText('Escolha o servico')).toBeVisible()
+    await expect(page.getByText('Escolha o serviço')).toBeVisible()
     await page.getByTestId('servico-btn').first().click()
     await page.getByRole('button', { name: /Continuar/i }).click()
 
@@ -187,7 +187,7 @@ test.describe('Fluxos do Gestor', () => {
     await expect(page.getByTestId('veiculo-btn').first()).toBeVisible()
     await page.getByTestId('veiculo-btn').first().click()
 
-    await expect(page.getByText('Escolha o servico')).toBeVisible()
+    await expect(page.getByText('Escolha o serviço')).toBeVisible()
     await page.getByTestId('servico-btn').first().click()
     await page.getByRole('button', { name: /Continuar/i }).click()
 

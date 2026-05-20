@@ -182,7 +182,7 @@ export function WhatsAppModal({ lavagem, tipo: tipoProp, loja, onClose }: WhatsA
 
         {/* Hint */}
         <div className="mt-2 text-xs text-[var(--muted)]">
-          Lembrando: <strong>wa.me</strong> abre o WhatsApp com a mensagem pronta — voce precisa clicar em enviar la.
+          Lembrando: <strong>wa.me</strong> abre o WhatsApp com a mensagem pronta — você precisa clicar em enviar lá.
         </div>
 
         {/* Footer */}

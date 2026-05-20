@@ -8,8 +8,8 @@ import { registrarOcorrencia } from '@/server/actions/lavagens'
 const SUGESTOES = [
   'Cliente esqueceu a chave',
   'Carro precisa de produto especial',
-  'Cliente precisa confirmar servico extra',
-  'Servico pausado por problema interno',
+  'Cliente precisa confirmar serviço extra',
+  'Serviço pausado por problema interno',
 ]
 
 interface OcorrenciaModalProps {
@@ -51,7 +51,7 @@ export function OcorrenciaModal({ lavagemId, descricaoAtual, onClose, onWhatsApp
 
         {/* Header */}
         <div className="mb-2.5 flex items-center justify-between gap-3">
-          <h2 className="font-heading text-[22px] font-bold tracking-tight">Marcar ocorrencia</h2>
+          <h2 className="font-heading text-[22px] font-bold tracking-tight">Marcar ocorrência</h2>
           <button
             className="inline-flex h-[34px] w-[34px] items-center justify-center rounded-[10px] border border-[var(--line)] bg-[var(--surface)] text-[var(--ink)] transition-colors hover:bg-[var(--bg-2)]"
             onClick={onClose}
@@ -62,7 +62,7 @@ export function OcorrenciaModal({ lavagemId, descricaoAtual, onClose, onWhatsApp
 
         {/* Hint */}
         <p className="mt-2 text-[13px] text-[var(--muted)]">
-          O cliente vai ver essa descricao na pagina de acompanhamento.
+          O cliente vai ver essa descrição na página de acompanhamento.
         </p>
 
         {/* Textarea */}
@@ -101,7 +101,7 @@ export function OcorrenciaModal({ lavagemId, descricaoAtual, onClose, onWhatsApp
             onClick={handleSalvar}
           >
             <AlertTriangle size={16} />
-            {isPending ? 'Registrando...' : 'Registrar ocorrencia'}
+            {isPending ? 'Registrando...' : 'Registrar ocorrência'}
           </button>
         </div>
       </div>

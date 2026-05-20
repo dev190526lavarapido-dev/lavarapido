@@ -78,7 +78,7 @@ export default async function DashboardPage() {
           accent="sky"
         />
         <StatCard
-          label="Concluidas"
+          label="Concluídas"
           value={stats.concluidas}
           icon={Check}
           accent="mint"
@@ -94,7 +94,7 @@ export default async function DashboardPage() {
           accent="default"
         />
         <StatCard
-          label="Ocorrencias abertas"
+          label="Ocorrências abertas"
           value={stats.ocorrencias}
           icon={AlertTriangle}
           accent="rose"
