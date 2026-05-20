@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect } from 'react'
 import { X } from 'lucide-react'
 import type { LavagemComDetalhes, ConfigLoja } from '@/lib/types'
 import { DEFAULT_TEMPLATES } from '@/lib/constants'
@@ -48,6 +48,14 @@ interface WhatsAppModalProps {
 }
 
 export function WhatsAppModal({ lavagem, tipo: tipoProp, loja, onClose }: WhatsAppModalProps) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [onClose])
+
   const buildMsg = useCallback(
     (t: string) => {
       if (!lavagem || !loja) return ''

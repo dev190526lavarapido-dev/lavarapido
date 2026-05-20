@@ -627,7 +627,7 @@ export function ConfiguracoesView({ config }: Props) {
             <div className="rounded-2xl bg-[#E5DDD5] p-3.5" style={{
               backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cpath fill='%23000' fill-opacity='0.03' d='M20 0c11 0 20 9 20 20s-9 20-20 20S0 31 0 20 9 0 20 0z'/%3E%3C/svg%3E\")",
             }}>
-              <div className="relative ml-auto max-w-[92%] whitespace-pre-wrap rounded-lg rounded-tr-none bg-[#DCF8C6] px-3 pb-6 pt-2.5 text-sm leading-relaxed text-[#1F2937] shadow-[0_1px_0.5px_rgba(11,20,26,.13)]">
+              <div data-testid="wa-preview" className="relative ml-auto max-w-[92%] whitespace-pre-wrap rounded-lg rounded-tr-none bg-[#DCF8C6] px-3 pb-6 pt-2.5 text-sm leading-relaxed text-[#1F2937] shadow-[0_1px_0.5px_rgba(11,20,26,.13)]">
                 <div className="absolute -right-2 top-0 h-0 w-0 border-l-0 border-r-[8px] border-t-[8px] border-r-transparent border-t-[#DCF8C6]" />
                 {fullPreview}
                 <span className="absolute bottom-1 right-2.5 text-[11px] text-[#667781]">

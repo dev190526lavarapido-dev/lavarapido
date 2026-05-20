@@ -44,3 +44,6 @@ next-env.d.ts
 tests/e2e/.auth/user.json
 test-results/
 playwright-report/
+test-results.json
+test-stdout.txt
+test-stderr.txt

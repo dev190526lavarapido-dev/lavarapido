@@ -14,6 +14,8 @@ export async function registrarMensagem(
   }
 
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Não autenticado' }
 
   const { data, error } = await supabase
     .from('mensagens_whatsapp')

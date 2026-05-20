@@ -8,6 +8,7 @@ interface PlacaTagProps {
 export function PlacaTag({ placa, size = "default" }: PlacaTagProps) {
   return (
     <span
+      data-placa={placa.toUpperCase()}
       className={cn(
         "inline-block rounded-md border border-black font-mono font-semibold tracking-[0.16em] uppercase",
         "bg-gradient-to-b from-[#1A1413] to-[#2A211D] text-[#FFE8AC]",
