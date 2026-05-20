@@ -12,9 +12,12 @@ export async function criarCliente(data: { nome: string; whatsapp: string }): Pr
   }
 
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Não autenticado' }
+
   const { data: cliente, error } = await supabase
     .from('clientes')
-    .insert(parsed.data)
+    .insert({ ...parsed.data, user_id: user.id })
     .select()
     .single()
 
@@ -34,11 +37,13 @@ export async function criarClienteComVeiculo(
   }
 
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Não autenticado' }
 
   // Criar cliente
   const { data: cliente, error: errCliente } = await supabase
     .from('clientes')
-    .insert(parsedCliente.data)
+    .insert({ ...parsedCliente.data, user_id: user.id })
     .select()
     .single()
 
@@ -55,7 +60,7 @@ export async function criarClienteComVeiculo(
 
   const { data: veiculo, error: errVeiculo } = await supabase
     .from('veiculos')
-    .insert(parsedVeiculo.data)
+    .insert({ ...parsedVeiculo.data, user_id: user.id })
     .select()
     .single()
 

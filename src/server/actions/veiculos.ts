@@ -17,9 +17,12 @@ export async function criarVeiculo(data: {
   }
 
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Não autenticado' }
+
   const { data: veiculo, error } = await supabase
     .from('veiculos')
-    .insert(parsed.data)
+    .insert({ ...parsed.data, user_id: user.id })
     .select()
     .single()
 

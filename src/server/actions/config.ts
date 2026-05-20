@@ -23,9 +23,13 @@ export async function atualizarConfigLoja(data: {
   }
 
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Não autenticado' }
+
   const { data: config, error } = await supabase
     .from('configuracoes_loja')
     .update(parsed.data)
+    .eq('user_id', user.id)
     .select()
     .single()
 
@@ -45,9 +49,13 @@ export async function atualizarAparencia(data: {
   }
 
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Não autenticado' }
+
   const { data: config, error } = await supabase
     .from('configuracoes_loja')
     .update(parsed.data)
+    .eq('user_id', user.id)
     .select()
     .single()
 
@@ -62,6 +70,8 @@ export async function uploadLogo(formData: FormData): Promise<{ data?: string; e
   if (!file) return { error: 'Nenhum arquivo enviado' }
 
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Não autenticado' }
 
   const ext = file.name.split('.').pop()
   const fileName = `logo_${Date.now()}.${ext}`
@@ -80,6 +90,7 @@ export async function uploadLogo(formData: FormData): Promise<{ data?: string; e
   const { error: updateError } = await supabase
     .from('configuracoes_loja')
     .update({ logo_url: publicUrl.publicUrl })
+    .eq('user_id', user.id)
     .select()
     .single()
 

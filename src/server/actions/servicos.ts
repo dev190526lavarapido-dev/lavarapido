@@ -19,9 +19,12 @@ export async function criarServico(data: {
   }
 
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Não autenticado' }
+
   const { data: servico, error } = await supabase
     .from('servicos_lavagem')
-    .insert(parsed.data)
+    .insert({ ...parsed.data, user_id: user.id })
     .select()
     .single()
 
@@ -48,10 +51,14 @@ export async function atualizarServico(
   }
 
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Não autenticado' }
+
   const { data: servico, error } = await supabase
     .from('servicos_lavagem')
     .update(parsed.data)
     .eq('id', id)
+    .eq('user_id', user.id)
     .select()
     .single()
 
@@ -63,12 +70,14 @@ export async function atualizarServico(
 
 export async function toggleServico(id: string): Promise<{ data?: ServicoLavagem; error?: string }> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Não autenticado' }
 
-  // Buscar estado atual
   const { data: atual, error: errBusca } = await supabase
     .from('servicos_lavagem')
     .select('ativo')
     .eq('id', id)
+    .eq('user_id', user.id)
     .single()
 
   if (errBusca || !atual) return { error: 'Serviço não encontrado' }
@@ -77,6 +86,7 @@ export async function toggleServico(id: string): Promise<{ data?: ServicoLavagem
     .from('servicos_lavagem')
     .update({ ativo: !atual.ativo })
     .eq('id', id)
+    .eq('user_id', user.id)
     .select()
     .single()
 

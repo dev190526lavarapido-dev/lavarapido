@@ -284,6 +284,7 @@ export function NovaLavagemWizard({
                           <button
                             key={v.id}
                             type="button"
+                            data-testid="veiculo-btn"
                             className="inline-flex h-[30px] items-center gap-1.5 rounded-[10px] border border-[var(--line)] bg-[var(--surface)] px-2.5 text-xs font-semibold hover:border-[var(--brand)] hover:bg-[var(--bg-2)]"
                             onClick={() => selectClienteVeiculo(c, v)}
                           >
@@ -455,6 +456,7 @@ export function NovaLavagemWizard({
                   <button
                     key={s.id}
                     type="button"
+                    data-testid="servico-btn"
                     className={cn(
                       "flex items-center justify-between gap-2.5 rounded-2xl border bg-[var(--surface)] p-3.5 text-left transition-all",
                       isSelected

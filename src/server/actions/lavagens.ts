@@ -20,6 +20,8 @@ export async function criarLavagem(data: {
   }
 
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Não autenticado' }
 
   // Gerar token público
   const token = crypto.randomUUID().replace(/-/g, '').slice(0, 12)
@@ -28,6 +30,7 @@ export async function criarLavagem(data: {
     .from('lavagens')
     .insert({
       ...parsed.data,
+      user_id: user.id,
       token_publico: token,
       status_atual: 'aguardando_lavagem',
       ativa: true,
@@ -54,12 +57,14 @@ export async function mudarStatus(
   novoStatus: LavagemStatus
 ): Promise<{ data?: Lavagem; error?: string }> {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Não autenticado' }
 
-  // Buscar lavagem atual
   const { data: lavagem, error: errBusca } = await supabase
     .from('lavagens')
     .select('id, status_atual')
     .eq('id', lavagemId)
+    .eq('user_id', user.id)
     .single()
 
   if (errBusca || !lavagem) return { error: 'Lavagem não encontrada' }
@@ -84,6 +89,7 @@ export async function mudarStatus(
     .from('lavagens')
     .update(updates)
     .eq('id', lavagemId)
+    .eq('user_id', user.id)
     .select()
     .single()
 
@@ -111,6 +117,8 @@ export async function registrarOcorrencia(
   }
 
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return { error: 'Não autenticado' }
 
   const { data: lavagem, error } = await supabase
     .from('lavagens')
@@ -119,6 +127,7 @@ export async function registrarOcorrencia(
       ocorrencia_descricao: parsed.data.descricao,
     })
     .eq('id', lavagemId)
+    .eq('user_id', user.id)
     .select()
     .single()
 
