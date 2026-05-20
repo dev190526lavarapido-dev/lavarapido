@@ -69,18 +69,20 @@ export function ClientesView({ clientes, totalVeiculos }: ClientesViewProps) {
 
   const items = useMemo(() => {
     const q = search.trim().toLowerCase()
-    if (!q) return clientes
-    return clientes.filter((c) => {
-      return (
-        c.nome.toLowerCase().includes(q) ||
-        c.whatsapp.toLowerCase().includes(q) ||
-        c.veiculos.some(
-          (v) =>
-            v.placa.toLowerCase().includes(q) ||
-            v.modelo?.toLowerCase().includes(q),
-        )
-      )
-    })
+    const filtered = !q
+      ? clientes
+      : clientes.filter((c) => {
+          return (
+            c.nome.toLowerCase().includes(q) ||
+            c.whatsapp.toLowerCase().includes(q) ||
+            c.veiculos.some(
+              (v) =>
+                v.placa.toLowerCase().includes(q) ||
+                v.modelo?.toLowerCase().includes(q),
+            )
+          )
+        })
+    return [...filtered].sort((a, b) => a.nome.localeCompare(b.nome))
   }, [search, clientes])
 
   return (
