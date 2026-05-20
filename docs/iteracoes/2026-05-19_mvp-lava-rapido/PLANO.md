@@ -1,6 +1,6 @@
 # Plano: MVP Lava Rápido
 
-> Iteração: `2026-05-19_mvp-lava-rapido` · Status: 🟡 em execução
+> Iteração: `2026-05-19_mvp-lava-rapido` · Status: ✅ concluído
 > PRD: [PRD.md](PRD.md) · Execução: [EXECUCAO.md](EXECUCAO.md)
 
 ## Contexto
