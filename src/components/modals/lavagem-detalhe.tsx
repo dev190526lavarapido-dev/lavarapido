@@ -213,7 +213,7 @@ export function LavagemDetalheModal({ lavagem, onClose, onOcorrencia, onWhatsApp
                       icon={<AlertTriangle size={16} />}
                       onClick={handleOpenOcorrencia}
                     >
-                      Marcar ocorrencia
+                      Marcar ocorrência
                     </ActionBtn>
                   </>
                 )}
@@ -240,7 +240,7 @@ export function LavagemDetalheModal({ lavagem, onClose, onOcorrencia, onWhatsApp
                       icon={<AlertTriangle size={16} />}
                       onClick={handleOpenOcorrencia}
                     >
-                      Marcar ocorrencia
+                      Marcar ocorrência
                     </ActionBtn>
                   </>
                 )}
@@ -255,11 +255,19 @@ export function LavagemDetalheModal({ lavagem, onClose, onOcorrencia, onWhatsApp
                     >
                       Marcar como retirado
                     </ActionBtn>
+                    {transitions.includes('lavando') && (
+                      <ActionBtn
+                        icon={<RotateCcw size={16} />}
+                        onClick={() => handleStatusChange('lavando')}
+                      >
+                        Voltar pra lavando
+                      </ActionBtn>
+                    )}
                     <ActionBtn
                       icon={<AlertTriangle size={16} />}
                       onClick={handleOpenOcorrencia}
                     >
-                      Marcar ocorrencia
+                      Marcar ocorrência
                     </ActionBtn>
                   </>
                 )}
@@ -288,7 +296,7 @@ export function LavagemDetalheModal({ lavagem, onClose, onOcorrencia, onWhatsApp
                       icon={<Edit size={16} />}
                       onClick={handleOpenOcorrencia}
                     >
-                      Editar ocorrencia
+                      Editar ocorrência
                     </ActionBtn>
                   </>
                 )}

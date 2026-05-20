@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeft,
+  ArrowRight,
   Search,
   Plus,
   Clock,
@@ -232,9 +233,9 @@ export function NovaLavagemWizard({
 
       {/* Wizard steps bar */}
       <div className="mb-5 flex items-center gap-2">
-        <WizardStep n={1} label="Cliente & veiculo" current={step} />
+        <WizardStep n={1} label="Cliente & veículo" current={step} />
         <span className="text-[var(--line)]">&mdash;</span>
-        <WizardStep n={2} label="Servico" current={step} />
+        <WizardStep n={2} label="Serviço" current={step} />
         <span className="text-[var(--line)]">&mdash;</span>
         <WizardStep n={3} label="Confirmar" current={step} />
       </div>
@@ -447,10 +448,10 @@ export function NovaLavagemWizard({
           {/* Service list */}
           <div>
             <h3 className="mb-2.5 text-base font-semibold">
-              Escolha o servico
+              Escolha o serviço
             </h3>
             <div className="flex flex-col gap-2">
-              {servicos.map((s) => {
+              {[...servicos].sort((a, b) => (a.ordem_exibicao ?? 0) - (b.ordem_exibicao ?? 0)).map((s) => {
                 const isSelected = selectedServico?.id === s.id;
                 return (
                   <button
@@ -496,8 +497,10 @@ export function NovaLavagemWizard({
             <Button
               disabled={!selectedServico}
               onClick={() => setStep(3)}
+              className="gap-2"
             >
               Continuar
+              <ArrowRight size={16} />
             </Button>
           </div>
         </div>
@@ -527,7 +530,7 @@ export function NovaLavagemWizard({
 
           <div className="flex flex-col gap-1.5">
             <label className="text-[13px] font-medium text-[var(--ink-2)]">
-              Observacao (opcional)
+              Observação (opcional)
             </label>
             <Textarea
               value={obs}
@@ -538,8 +541,8 @@ export function NovaLavagemWizard({
 
           <div className="text-xs text-[var(--muted)]">
             Ao confirmar, a gente cria a lavagem, gera o link de
-            acompanhamento e ja abre o WhatsApp com a mensagem de entrada
-            pronta pra voce revisar e enviar.
+            acompanhamento e já abre o WhatsApp com a mensagem de entrada
+            pronta pra você revisar e enviar.
           </div>
 
           {formError && (
