@@ -10,15 +10,18 @@ RETORNA string
 
 ## DashboardPage (async Server Component)
 
-BUSCA em paralelo
-  stats ← getDashboardStats() → BD [banco_de_dados.md](../../banco_de_dados.md) → lavagens/clientes/veiculos/servicos
-  lavagensAtivas ← getLavagensAtivas() → BD [banco_de_dados.md](../../banco_de_dados.md) → lavagens
+BUSCA em paralelo (Promise.all)
+  stats ← getDashboardStats() → ver [server/queries/dashboard.md](../../server/queries/dashboard.md) → BD [banco_de_dados.md](../../banco_de_dados.md) → lavagens/clientes/veiculos/servicos
+  lavagensAtivas ← getLavagensAtivas() → ver [server/queries/lavagens.md](../../server/queries/lavagens.md) → BD [banco_de_dados.md](../../banco_de_dados.md) → lavagens
+  { data: { user } } ← supabase.auth.getUser() (createClient do servidor)
 
-CALCULA top5 = lavagensAtivas.slice(0, 5)
+CALCULA
+  nomeGestor = user?.user_metadata?.name ?? user?.email?.split("@")[0] ?? ""
+  top5 = lavagensAtivas.slice(0, 5)
 
 RENDERIZA
   CABECALHO
-    texto saudacao() + ", Marquinhos ☀️"
+    texto saudacao() + (nomeGestor ? ", {nomeGestor}" : "") + " ☀️"
     h1 "Como ta o dia hoje?"
     Link href="/gestor/nova-lavagem" icone Plus "Nova lavagem"
 
@@ -45,7 +48,7 @@ RENDERIZA
     SENAO FACA
       PARA CADA lavagem em top5
         Link href="/gestor/lavagens"
-          PlacaTag placa=lavagem.veiculo?.placa size="sm"
+          PlacaTag placa=lavagem.veiculo?.placa size="sm" → ver [components/shared/placa-tag.md](../../components/shared/placa-tag.md)
           div nome=lavagem.cliente?.nome (truncado)
           div lavagem.servico?.nome · lavagem.veiculo?.modelo (truncado)
-          StatusBadge status=lavagem.status_atual size="sm"
+          StatusBadge status=lavagem.status_atual size="sm" → ver [components/shared/status-badge.md](../../components/shared/status-badge.md)

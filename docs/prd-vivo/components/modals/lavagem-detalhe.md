@@ -35,7 +35,7 @@ SE lavagemId mudar FACA
 
 handleStatusChange (novoStatus)
   SE sem lavagem FACA retornar
-  chamar mudarStatus(lavagem.id, novoStatus) via server action
+  chamar mudarStatus(lavagem.id, novoStatus) → ver [server/actions/lavagens.md](../../server/actions/lavagens.md)
   SE erro FACA logar e retornar
   router.refresh() e onClose()
   SE onWhatsApp fornecido FACA
@@ -86,6 +86,8 @@ RENDERIZA
           ActionBtn "Marcar ocorrencia" → handleOpenOcorrencia
         SE lavagem_concluida FACA
           ActionBtn primary "Marcar como retirado" → handleStatusChange('retirado')
+          SE transitions inclui lavando FACA
+            ActionBtn "Voltar pra lavando" → handleStatusChange('lavando')
           ActionBtn "Marcar ocorrencia" → handleOpenOcorrencia
         SE ocorrencia FACA
           SE transitions inclui lavando FACA

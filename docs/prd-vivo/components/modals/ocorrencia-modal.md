@@ -19,7 +19,7 @@ SE lavagemId for null FACA retornar null
 
 handleSalvar
   SE desc.trim() vazio FACA retornar
-  chamar registrarOcorrencia(lavagemId, desc.trim()) via server action
+  chamar registrarOcorrencia(lavagemId, desc.trim()) → ver [server/actions/lavagens.md](../../server/actions/lavagens.md)
   SE erro FACA logar e retornar
   router.refresh() e onClose()
   chamar onWhatsApp?.() se fornecido
@@ -36,7 +36,7 @@ RENDERIZA
         botao que ao clicar seta desc = sugestao
     footer:
       botao "Cancelar" → onClose
-      botao "Registrar ocorrencia" (vermelho)
+      botao "Registrar ocorrencia" (vermelho, icone AlertTriangle)
         desabilitado SE desc.trim() vazio OU isPending
         SE isPending FACA texto "Registrando..."
         SENAO FACA texto "Registrar ocorrencia"

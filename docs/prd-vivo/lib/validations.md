@@ -56,6 +56,7 @@ Schema Zod:
 
 Schema Zod:
 - tema: "claro" | "escuro"
+- paleta: "esmeralda" | "oceano" | "sol-coral" | "lavanda" | "asfalto"
 - cor_primaria: texto, regex /^#[0-9A-Fa-f]{6}$/ ("Cor hex inválida")
 
 ## loginSchema

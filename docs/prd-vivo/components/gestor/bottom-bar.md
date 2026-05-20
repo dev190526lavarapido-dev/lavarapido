@@ -21,5 +21,5 @@ PARA cada tab em TABS FACA
     renderizar link com cor ativa SE isActive SENAO cor muted
 
 RENDERIZA
-  nav sticky bottom, visivel apenas em telas < lg
+  nav sticky bottom, visivel apenas em telas < 900px (min-[900px]:hidden)
   para cada tab → link com icone + label

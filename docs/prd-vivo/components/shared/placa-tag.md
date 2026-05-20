@@ -11,4 +11,4 @@ SE size = 'sm' FACA px-2 py-0.5 text-[11px]
 SE size = 'default' FACA px-2.5 py-1 text-[13px]
 SE size = 'big' FACA px-3.5 py-1.5 text-lg tracking-[0.2em]
 
-RENDERIZA span com placa.toUpperCase()
+RENDERIZA span com atributo data-placa={placa.toUpperCase()} e texto placa.toUpperCase()

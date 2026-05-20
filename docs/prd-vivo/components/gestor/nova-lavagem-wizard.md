@@ -90,7 +90,7 @@ RENDERIZA
 
   SE step == 3 E cliente+veiculo+servico selecionados:
     card com:
-      titulo "Tudo certo, Marquinhos?"
+      titulo "Tudo certo? Confere os dados"
       RowInfo: Cliente, WhatsApp (mono), Veiculo (placa·modelo·cor), Servico, Valor (bold)
       campo Observacao (Textarea, opcional)
       texto informativo sobre link de acompanhamento + WhatsApp

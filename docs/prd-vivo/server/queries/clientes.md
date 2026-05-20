@@ -12,10 +12,11 @@ SE FALHAR
 
 buscar → BD [banco_de_dados.md](../../banco_de_dados.md) → lavagens
   selecionar: cliente_id
+  (sem tratamento de erro — usa array vazio se falhar)
 
-montar dicionário contagemPorCliente: cliente_id → número de lavagens
+montar dicionario contagemPorCliente: cliente_id → numero de lavagens
 
-retorna lista de clientes com campo extra total_lavagens (da contagem)
+retorna lista de clientes com campo extra total_lavagens (contagem por cliente, 0 se nao encontrado)
 
 ---
 

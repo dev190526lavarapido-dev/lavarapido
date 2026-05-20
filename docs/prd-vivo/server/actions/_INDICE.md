@@ -1,7 +1,7 @@
 # Server/Actions — Indice
 
 - [auth.md](auth.md) — login, logout
-- [clientes.md](clientes.md) — criarCliente, criarClienteComVeiculo
+- [clientes.md](clientes.md) — criarCliente, atualizarCliente, atualizarVeiculo, adicionarVeiculo, removerVeiculo, criarClienteComVeiculo
 - [config.md](config.md) — atualizarConfigLoja, atualizarAparencia, uploadLogo
 - [lavagens.md](lavagens.md) — criarLavagem, mudarStatus, registrarOcorrencia
 - [servicos.md](servicos.md) — criarServico, atualizarServico, toggleServico

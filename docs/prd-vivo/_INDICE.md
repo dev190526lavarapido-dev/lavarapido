@@ -10,7 +10,7 @@ Mapa navegavel de todos os arquivos de pseudocodigo.
 
 ## Core
 
-- [layout.md](core/layout.md) — RootLayout (fontes, metadata, providers)
+- [layout.md](core/layout.md) — RootLayout (metadata dinamica, tema/paleta/cor primaria da loja, brandInkFor)
 - [public-layout.md](core/public-layout.md) — PublicLayout (passthrough)
 - [public-page.md](core/public-page.md) — VitrinePage (vitrine publica completa)
 - [proxy.md](core/proxy.md) — Middleware de autenticacao (protege /gestor/*)
@@ -23,7 +23,8 @@ Mapa navegavel de todos os arquivos de pseudocodigo.
 
 - [constants.md](lib/constants.md) — LavagemStatus, STATUS_META, STATUS_TRANSITIONS, DEFAULT_TEMPLATES
 - [utils.md](lib/utils.md) — cn (clsx + twMerge)
-- [validations.md](lib/validations.md) — Schemas Zod (cliente, veiculo, servico, lavagem, config, login)
+- [palettes.md](lib/palettes.md) — PALETAS (5 paletas: esmeralda, oceano, sol-coral, lavanda, asfalto) + PaletaKey
+- [validations.md](lib/validations.md) — Schemas Zod (cliente, veiculo, servico, lavagem, config, aparencia, login)
 - [whatsapp.md](lib/whatsapp.md) — Helpers WhatsApp (waLink, fillTemplate, buildWaMessage, tituloPorTipo, tipoMsgParaStatus)
 - [supabase/client.md](lib/supabase/client.md) — createClient (browser)
 - [supabase/server.md](lib/supabase/server.md) — createClient (server, cookies)
@@ -47,6 +48,7 @@ Mapa navegavel de todos os arquivos de pseudocodigo.
 - [clientes-view.md](components/gestor/clientes-view.md) — ClientesView (lista, busca, detalhe, cadastro)
 - [configuracoes-view.md](components/gestor/configuracoes-view.md) — ConfiguracoesView (aparencia, identidade, contato, mensagens)
 - [lavagem-card.md](components/gestor/lavagem-card.md) — LavagemCard (card draggable com acoes)
+- [logo-crop-modal.md](components/gestor/logo-crop-modal.md) — LogoCropModal (crop circular + compressao webp 512x512)
 - [lavagens-view.md](components/gestor/lavagens-view.md) — LavagensView (kanban drag&drop, busca, filtros)
 - [nova-lavagem-wizard.md](components/gestor/nova-lavagem-wizard.md) — NovaLavagemWizard (3 passos)
 - [sidebar.md](components/gestor/sidebar.md) — Sidebar (nav desktop, 5 itens + CTA)
@@ -69,7 +71,7 @@ Mapa navegavel de todos os arquivos de pseudocodigo.
 ## Server — Actions
 
 - [auth.md](server/actions/auth.md) — login, logout
-- [clientes.md](server/actions/clientes.md) — criarCliente, criarClienteComVeiculo
+- [clientes.md](server/actions/clientes.md) — criarCliente, criarClienteComVeiculo, atualizarCliente, atualizarVeiculo, adicionarVeiculo, removerVeiculo
 - [config.md](server/actions/config.md) — atualizarConfigLoja, atualizarAparencia, uploadLogo
 - [lavagens.md](server/actions/lavagens.md) — criarLavagem, mudarStatus, registrarOcorrencia
 - [servicos.md](server/actions/servicos.md) — criarServico, atualizarServico, toggleServico
