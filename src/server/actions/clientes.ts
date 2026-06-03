@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { clienteSchema, veiculoSchema } from '@/lib/validations'
+import { clienteSchema, veiculoSchema, veiculoUpdateSchema } from '@/lib/validations'
 import { revalidatePath } from 'next/cache'
 import type { Cliente, Veiculo } from '@/lib/types'
 
@@ -58,6 +58,11 @@ export async function atualizarVeiculo(
   veiculoId: string,
   data: { placa: string; modelo?: string; cor?: string }
 ): Promise<{ data?: Veiculo; error?: string }> {
+  const parsed = veiculoUpdateSchema.safeParse(data)
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? 'Dados inválidos' }
+  }
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Não autenticado' }
@@ -65,9 +70,9 @@ export async function atualizarVeiculo(
   const { data: veiculo, error } = await supabase
     .from('veiculos')
     .update({
-      placa: data.placa.toUpperCase().trim(),
-      modelo: data.modelo?.trim() ?? '',
-      cor: data.cor?.trim() ?? '',
+      placa: parsed.data.placa,
+      modelo: parsed.data.modelo?.trim() ?? '',
+      cor: parsed.data.cor?.trim() ?? '',
     })
     .eq('id', veiculoId)
     .eq('user_id', user.id)

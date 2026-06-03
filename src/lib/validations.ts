@@ -14,6 +14,12 @@ export const veiculoSchema = z.object({
   cor: z.string().optional().default(''),
 })
 
+// Atualização de veículo: mesmas regras (placa min 7 + uppercase), sem cliente_id.
+export const veiculoUpdateSchema = veiculoSchema.omit({ cliente_id: true }).partial({
+  modelo: true,
+  cor: true,
+})
+
 // === Serviços ===
 export const servicoSchema = z.object({
   nome: z.string().min(2, 'Nome é obrigatório'),

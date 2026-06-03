@@ -23,15 +23,17 @@ export function OcorrenciaModal({ lavagemId, descricaoAtual, onClose, onWhatsApp
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [desc, setDesc] = useState(descricaoAtual || '')
+  const [error, setError] = useState<string | null>(null)
 
   if (!lavagemId) return null
 
   const handleSalvar = () => {
     if (!desc.trim()) return
+    setError(null)
     startTransition(async () => {
       const result = await registrarOcorrencia(lavagemId, desc.trim())
       if (result.error) {
-        console.error('Erro ao registrar ocorrencia:', result.error)
+        setError(result.error)
         return
       }
       router.refresh()
@@ -86,6 +88,9 @@ export function OcorrenciaModal({ lavagemId, descricaoAtual, onClose, onWhatsApp
             </button>
           ))}
         </div>
+
+        {/* Erro */}
+        {error && <p className="mt-2 text-xs text-[var(--rose)]">{error}</p>}
 
         {/* Footer */}
         <div className="mt-4 flex items-center justify-between gap-2">
