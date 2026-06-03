@@ -1,9 +1,9 @@
-import { STATUS_META, type LavagemStatus } from "@/lib/constants";
+import { STATUS_META, type LavagemStatus, type EventoStatus } from "@/lib/constants";
 import { Car } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface TimelineEvento {
-  status: string;
+  status: EventoStatus;
   descricao?: string;
   created_at: string;
 }
@@ -13,6 +13,7 @@ interface TimelineProps {
   animateLast?: boolean;
 }
 
+// Chaves mapeadas por className (não pelo status diretamente), então mantemos string
 const markerColors: Record<string, string> = {
   aguardando:
     "bg-st-aguardando border-st-aguardando text-[#6b4d00]",
@@ -28,7 +29,7 @@ function formatHM(iso: string): string {
   return d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
 }
 
-const titleMap: Record<string, string> = {
+const titleMap: Record<EventoStatus, string> = {
   entrada: "Carro deu entrada",
   aguardando_lavagem: "Aguardando lavagem",
   lavando: "Lavagem em andamento",
