@@ -66,21 +66,31 @@ export async function atualizarAparencia(data: {
   return { data: config as ConfigLoja }
 }
 
+const MIMES_LOGO_PERMITIDOS = ['image/png', 'image/jpeg', 'image/webp']
+const TAMANHO_MAXIMO_LOGO = 2 * 1024 * 1024 // 2 MB
+
 export async function uploadLogo(formData: FormData): Promise<{ data?: string; error?: string }> {
   const file = formData.get('logo') as File | null
   if (!file) return { error: 'Nenhum arquivo enviado' }
+
+  if (!MIMES_LOGO_PERMITIDOS.includes(file.type)) {
+    return { error: 'Formato inválido. Envie uma imagem PNG, JPEG ou WebP.' }
+  }
+
+  if (file.size > TAMANHO_MAXIMO_LOGO) {
+    return { error: 'Arquivo muito grande. O tamanho máximo é 2 MB.' }
+  }
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Não autenticado' }
 
-  const ext = file.name.split('.').pop()
-  const fileName = `logo_${Date.now()}.${ext}`
-  const filePath = `logos/${fileName}`
+  // Path fixo por usuário: cada novo upload sobrescreve o anterior (zero acúmulo de órfãos).
+  const filePath = `logos/${user.id}`
 
   const { error: uploadError } = await supabase.storage
     .from('loja')
-    .upload(filePath, file, { upsert: true })
+    .upload(filePath, file, { upsert: true, contentType: file.type })
 
   if (uploadError) return { error: uploadError.message }
 
@@ -88,15 +98,18 @@ export async function uploadLogo(formData: FormData): Promise<{ data?: string; e
     .from('loja')
     .getPublicUrl(filePath)
 
+  // Cache-busting: path é fixo, então versionamos a URL pra evitar cache antigo do navegador/CDN.
+  const logoUrl = `${publicUrl.publicUrl}?v=${Date.now()}`
+
   const { error: updateError } = await supabase
     .from('configuracoes_loja')
-    .update({ logo_url: publicUrl.publicUrl })
+    .update({ logo_url: logoUrl })
     .eq('user_id', user.id)
     .select()
-    .single()
+    .maybeSingle()
 
   if (updateError) return { error: updateError.message }
 
   revalidatePath('/gestor/configuracoes')
-  return { data: publicUrl.publicUrl }
+  return { data: logoUrl }
 }
