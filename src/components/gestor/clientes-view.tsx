@@ -47,11 +47,6 @@ function initials(nome: string): string {
     .toUpperCase()
 }
 
-function formatHM(dateStr: string): string {
-  const d = new Date(dateStr)
-  return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-}
-
 /* WhatsApp icon inline */
 function WhatsAppIcon() {
   return (
