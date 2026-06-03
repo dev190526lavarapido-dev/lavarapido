@@ -78,7 +78,7 @@ test.describe('Fluxos do Gestor', () => {
     await page.getByTestId('servico-btn').first().click()
     await page.getByRole('button', { name: /Continuar/i }).click()
 
-    await expect(page.getByText('Tudo certo, Marquinhos?')).toBeVisible()
+    await expect(page.getByText(/Tudo certo\? Confere os dados/i)).toBeVisible()
     await page.getByRole('button', { name: /Confirmar entrada/i }).click()
     await expect(page).toHaveURL(/\/gestor\/lavagens/)
   })
@@ -97,7 +97,7 @@ test.describe('Fluxos do Gestor', () => {
     await page.getByTestId('servico-btn').first().click()
     await page.getByRole('button', { name: /Continuar/i }).click()
 
-    await expect(page.getByText('Tudo certo, Marquinhos?')).toBeVisible()
+    await expect(page.getByText(/Tudo certo\? Confere os dados/i)).toBeVisible()
     await page.getByRole('button', { name: /Confirmar entrada/i }).click()
     await expect(page).toHaveURL(/\/gestor\/lavagens/)
 
@@ -191,7 +191,7 @@ test.describe('Fluxos do Gestor', () => {
     await page.getByTestId('servico-btn').first().click()
     await page.getByRole('button', { name: /Continuar/i }).click()
 
-    await expect(page.getByText('Tudo certo, Marquinhos?')).toBeVisible()
+    await expect(page.getByText(/Tudo certo\? Confere os dados/i)).toBeVisible()
     await page.getByRole('button', { name: /Confirmar entrada/i }).click()
     await expect(page).toHaveURL(/\/gestor\/lavagens/)
 
