@@ -136,6 +136,13 @@ export async function criarClienteComVeiculo(
     return { error: parsedCliente.error.issues[0]?.message ?? 'Dados do cliente inválidos' }
   }
 
+  // Validar os campos do veículo ANTES de criar o cliente (evita cliente órfão).
+  // O cliente_id só existe após criar o cliente, então validamos o restante do shape.
+  const parsedVeiculo = veiculoSchema.omit({ cliente_id: true }).safeParse(veiculoData)
+  if (!parsedVeiculo.success) {
+    return { error: parsedVeiculo.error.issues[0]?.message ?? 'Dados do veículo inválidos' }
+  }
+
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Não autenticado' }
@@ -149,22 +156,18 @@ export async function criarClienteComVeiculo(
 
   if (errCliente || !cliente) return { error: errCliente?.message ?? 'Erro ao criar cliente' }
 
-  // Validar e criar veículo
-  const parsedVeiculo = veiculoSchema.safeParse({
-    ...veiculoData,
-    cliente_id: cliente.id,
-  })
-  if (!parsedVeiculo.success) {
-    return { error: parsedVeiculo.error.issues[0]?.message ?? 'Dados do veículo inválidos' }
-  }
-
+  // Criar veículo já com o cliente_id recém-gerado
   const { data: veiculo, error: errVeiculo } = await supabase
     .from('veiculos')
-    .insert({ ...parsedVeiculo.data, user_id: user.id })
+    .insert({ ...parsedVeiculo.data, cliente_id: cliente.id, user_id: user.id })
     .select()
     .single()
 
-  if (errVeiculo || !veiculo) return { error: errVeiculo?.message ?? 'Erro ao criar veículo' }
+  if (errVeiculo || !veiculo) {
+    // Compensação: o veículo falhou, então removemos o cliente para não deixá-lo órfão.
+    await supabase.from('clientes').delete().eq('id', cliente.id).eq('user_id', user.id)
+    return { error: errVeiculo?.message ?? 'Erro ao criar veículo' }
+  }
 
   revalidatePath('/gestor/clientes')
   return { data: { cliente: cliente as Cliente, veiculo: veiculo as Veiculo } }
