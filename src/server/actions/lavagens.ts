@@ -5,6 +5,7 @@ import { novaLavagemSchema, ocorrenciaSchema } from '@/lib/validations'
 import { STATUS_TRANSITIONS } from '@/lib/constants'
 import type { LavagemStatus } from '@/lib/constants'
 import { revalidatePath } from 'next/cache'
+import { randomBytes } from 'node:crypto'
 import type { Lavagem } from '@/lib/types'
 
 export async function criarLavagem(data: {
@@ -23,8 +24,8 @@ export async function criarLavagem(data: {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Não autenticado' }
 
-  // Gerar token público
-  const token = crypto.randomUUID().replace(/-/g, '').slice(0, 12)
+  // Gerar token público forte (128 bits), consistente com o default do schema
+  const token = randomBytes(16).toString('hex')
 
   const { data: lavagem, error } = await supabase
     .from('lavagens')
