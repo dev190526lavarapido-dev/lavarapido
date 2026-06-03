@@ -21,9 +21,10 @@ completa e garantia de zero regressão. Tudo em DEV. Ver [PRD.md](PRD.md).
 
 ## Fases
 
-### Fase 1 · 🔴 Corrigir RLS público do acompanhamento por token
+### Fase 1 · 🔴 Corrigir RLS público do acompanhamento por token — código ✅ (PR #23) · migration aguardando aplicação manual no DEV
 
 Objetivo: eliminar o vazamento (`using(true)`) e restaurar a feature de acompanhamento via RPC segura.
+> Sentinela: PROSSEGUIR. Migration `20260603010243` criada, **aplicação manual pendente** (usuário aplica em DEV/PROD). Smoke da rota `/a/[token]` após aplicar.
 
 - **Slice 1.1** · Migration de RPC `SECURITY DEFINER`
   - [ ] Task 1.1.1 — `supabase migration new harden_acompanhamento_publico`
@@ -78,6 +79,8 @@ Objetivo: setup de PROD re-executável sem abortar (sem aplicar em PROD agora).
   - [ ] Task 5.1.1 — Prefixar cada `create policy` com `drop policy if exists` (ou bloco `do $$ ... exception`)
   - [ ] Task 5.1.2 — Revisar consistência com as migrations (mesmas policies)
   - [ ] Task 5.1.3 — Validar sintaxe SQL (dry parse / lint SQL); NÃO executar em PROD
+- **Slice 5.2** · Propagar fix da Fase 1 ao PROD (apontado pela sentinela)
+  - [ ] Task 5.2.1 — `prod_setup.sql`: remover as 2 policies `using(true)` (linhas ~196/201) e adicionar a RPC `get_lavagem_publica` + grants + token default forte, espelhando a migration `20260603010243`
 - **Sentinela Fase 5**
 
 ### Fase 6 · 🟡 Hardening de `uploadLogo`
