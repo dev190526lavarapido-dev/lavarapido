@@ -76,21 +76,18 @@ export function WhatsAppModal({ lavagem, tipo: tipoProp, loja, onClose }: WhatsA
 
   const [activeTipo, setActiveTipo] = useState(tipoProp)
   const [msg, setMsg] = useState(() => buildMsg(tipoProp))
-  // Track external key to reset when props change
-  const [prevKey, setPrevKey] = useState(`${tipoProp}-${lavagem?.id}`)
-  const currentKey = `${tipoProp}-${lavagem?.id}`
+  // Track external key to reset when props change.
+  // canBuild entra na chave para regenerar a mensagem quando loja/lavagem
+  // carregam depois do modal já aberto (buildMsg passa de '' pra texto real),
+  // sem precisar de setState dentro de useEffect.
+  const canBuild = !!lavagem && !!loja
+  const [prevKey, setPrevKey] = useState(`${tipoProp}-${lavagem?.id}-${canBuild}`)
+  const currentKey = `${tipoProp}-${lavagem?.id}-${canBuild}`
   if (prevKey !== currentKey) {
     setPrevKey(currentKey)
     setActiveTipo(tipoProp)
     setMsg(buildMsg(tipoProp))
   }
-
-  // Regenerar mensagem quando loja carrega depois do modal já aberto
-  useEffect(() => {
-    if (loja && lavagem && !msg) {
-      setMsg(buildMsg(activeTipo))
-    }
-  }, [loja, lavagem, msg, buildMsg, activeTipo])
 
   const handlePreset = (t: string) => {
     setActiveTipo(t)
