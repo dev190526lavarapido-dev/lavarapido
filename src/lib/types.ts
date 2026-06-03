@@ -1,3 +1,5 @@
+import type { EventoStatus } from '@/lib/constants'
+
 export interface ConfigLoja {
   id: string
   user_id: string
@@ -80,7 +82,7 @@ export interface LavagemComDetalhes extends Lavagem {
 export interface EventoLavagem {
   id: string
   lavagem_id: string
-  status: string
+  status: EventoStatus
   descricao: string
   created_at: string
 }

@@ -3,7 +3,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { novaLavagemSchema, ocorrenciaSchema } from '@/lib/validations'
 import { STATUS_TRANSITIONS } from '@/lib/constants'
-import type { LavagemStatus } from '@/lib/constants'
+import type { LavagemStatus, EventoStatus } from '@/lib/constants'
 import { revalidatePath } from 'next/cache'
 import { randomBytes } from 'node:crypto'
 import type { Lavagem } from '@/lib/types'
@@ -43,10 +43,12 @@ export async function criarLavagem(data: {
   if (error || !lavagem) return { error: error?.message ?? 'Erro ao criar lavagem' }
 
   // Criar eventos iniciais
-  await supabase.from('eventos_lavagem').insert([
+  // 'entrada' é um marco de evento válido (EventoStatus), não um status de transição
+  const eventosIniciais: { lavagem_id: string; status: EventoStatus; descricao: string }[] = [
     { lavagem_id: lavagem.id, status: 'entrada', descricao: 'Veículo deu entrada' },
     { lavagem_id: lavagem.id, status: 'aguardando_lavagem', descricao: 'Aguardando lavagem' },
-  ])
+  ]
+  await supabase.from('eventos_lavagem').insert(eventosIniciais)
 
   revalidatePath('/gestor/dashboard')
   revalidatePath('/gestor/lavagens')
