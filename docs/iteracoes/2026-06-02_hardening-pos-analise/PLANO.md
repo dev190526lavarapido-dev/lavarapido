@@ -1,6 +1,6 @@
 # Plano: Hardening pós-análise de ponta a ponta
 
-> Iteração: `2026-06-02_hardening-pos-analise` · Status: 🟡 em execução
+> Iteração: `2026-06-02_hardening-pos-analise` · Status: 🟢 concluída (Fases 1–10, PRs #23–#33; E2E 14/14)
 > PRD: [PRD.md](PRD.md) · Execução: [EXECUCAO.md](EXECUCAO.md)
 
 ## Contexto
@@ -142,13 +142,13 @@ Objetivo: garantir que nada quebrou e cobrir o ponto frágil corrigido.
 
 ## Verificação de conclusão
 
-- [ ] Achados #1–#9 corrigidos e validados pela sentinela em cada fase
-- [ ] `npx tsc --noEmit` limpo
-- [ ] `npm run lint` sem erros
-- [ ] Suite E2E completa verde
-- [ ] EXECUCAO.md preenchido com resultados de todas as Fases
-- [ ] `docs/projeto/` (estado) atualizado
-- [ ] Nenhuma regressão funcional
+- [x] Achados #1–#9 corrigidos e validados pela sentinela em cada fase
+- [x] `npx tsc --noEmit` limpo
+- [x] `npm run lint` sem erros
+- [x] Suite E2E completa verde (14/14, ~2.1 min)
+- [x] EXECUCAO.md preenchido com resultados de todas as Fases
+- [x] `docs/projeto/` (estado) atualizado
+- [x] Nenhuma regressão funcional
 
 ## Riscos e decisões pendentes
 

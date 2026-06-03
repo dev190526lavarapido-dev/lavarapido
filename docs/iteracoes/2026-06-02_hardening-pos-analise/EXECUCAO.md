@@ -123,4 +123,27 @@ Todas as fases de código mergeadas em `dev`. `tsc` 0 erros, `lint` 0/0.
 
 **Migration pendente de aplicação manual no DEV (única):** `supabase/migrations/20260603010243_harden_acompanhamento_publico.sql` (Fase 1). As demais fases não precisaram de migration. **A Fase 10 (E2E) depende dessa migration estar aplicada no DEV** — o fluxo de acompanhamento `/a/[token]` chama a RPC `get_lavagem_publica`.
 
-<!-- Entradas de execução serão adicionadas abaixo, uma por Fase/Slice concluído. -->
+## 2026-06-02 — Fase 10 · Validação E2E final ✅
+
+**Pré-requisito:** migration `20260603010243` aplicada no DEV pelo usuário. Smoke do orquestrador: RPC `get_lavagem_publica` → HTTP 200 + `null` p/ token inexistente ✅.
+
+**PR #33** · squash `8f6638d` — "test(e2e): cobre acompanhamento publico anonimo e corrige texto do wizard".
+**Arquivos:** `tests/e2e/acompanhamento-publico.spec.ts` (novo), `tests/e2e/gestor-fluxos.spec.ts` (3 asserções de texto).
+**Slice 10.1:** novo spec valida o fix da Fase 1 — visitante **anônimo** (`storageState: undefined`) em `/a/[token]` vê nome do cliente ("Fala, Marcelo!"), placa (`[data-placa]` não vazia) e modelo ("Honda Civic"), via RPC. Token obtido pela UI autenticada (anon não lê mais `lavagens` via REST — confirma o hardening). Sem anti-patterns banidos.
+**Slice 10.2 — suite completa:** `npm run test:e2e` → **14/14 verde, ~2.1 min** (setup + acompanhamento(1) + auth(3) + gestor-fluxos(8) + publico(1)).
+**Falhas tratadas (categoria b — teste desatualizado, NÃO regressão):** 3 testes do `gestor-fluxos.spec.ts` esperavam "Tudo certo, Marquinhos?" — texto que **nunca existiu no `src/`** (drift pré-existente, provável desde `ad2a3ac`). Atualizado para o texto real "Tudo certo? Confere os dados". Diff verificado pelo orquestrador: só a string, sem enfraquecer asserções. Zero mudança em `src/`.
+**Checks (orquestrador):** li o novo spec + diff do gestor-fluxos; `npx tsc --noEmit` → 0 erros ✅.
+
+---
+
+## ✅ Iteração concluída — Fases 1–10
+
+**Resultado:** todos os achados (#1 crítico, #2-4 altos, #5-8 médios, #9 polish) corrigidos e validados pela sentinela em cada fase. `tsc` 0 erros · `lint` 0/0 · suite E2E **14/14 verde** (~2.1 min). Zero regressão funcional.
+
+**PRs (dev):** #23 #24 #25 #26 #27 #28 #29 #30 #31 #32 #33.
+
+**Follow-ups conhecidos (não-bloqueantes):**
+- ⚠️ Rotacionar a senha do DEV (exposta em chat).
+- `prod_setup.sql` já com hardening — aplicar no DEV→PROD apenas no release.
+- LOW: policy do bucket `loja` não amarra arquivo ao uid (relevante só se for multi-loja).
+- LOW: teste #7 de `gestor-fluxos` ("link de acompanhamento") usa fetch REST anon que agora retorna null → cai em fallback trivial; cobertura real migrou pro novo spec. Simplificar numa próxima iteração.
