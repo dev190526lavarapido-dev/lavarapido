@@ -147,3 +147,5 @@ Todas as fases de código mergeadas em `dev`. `tsc` 0 erros, `lint` 0/0.
 - `prod_setup.sql` já com hardening — aplicar no DEV→PROD apenas no release.
 - LOW: policy do bucket `loja` não amarra arquivo ao uid (relevante só se for multi-loja).
 - LOW: teste #7 de `gestor-fluxos` ("link de acompanhamento") usa fetch REST anon que agora retorna null → cai em fallback trivial; cobertura real migrou pro novo spec. Simplificar numa próxima iteração.
+
+**Sentinela CONSOLIDADA FINAL → PRONTO.** Modelo de segurança consistente e completo: única leitura pública de lavagem é via RPC `get_lavagem_publica`; policies `using(true)` removidas (DEV + prod_setup); sem efeitos cruzados negativos; cobertura E2E reforçada (não reduzida); sem secrets/PII no bundle. Risco MED operacional (não de código): aplicar `prod_setup.sql` no PROD durante o release. Iteração **segura para considerar release dev→main**.
