@@ -45,6 +45,7 @@ export function LavagemDetalheModal({ lavagem, onClose, onOcorrencia, onWhatsApp
   const [loadingEventos, setLoadingEventos] = useState(false)
   const [copied, setCopied] = useState(false)
   const [showOcorrenciaInterna, setShowOcorrenciaInterna] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   // Fetch eventos when lavagem changes
   const lavagemId = lavagem?.id ?? null
@@ -75,10 +76,11 @@ export function LavagemDetalheModal({ lavagem, onClose, onOcorrencia, onWhatsApp
 
   const handleStatusChange = useCallback((novoStatus: LavagemStatus) => {
     if (!lavagem) return
+    setError(null)
     startTransition(async () => {
       const result = await mudarStatus(lavagem.id, novoStatus)
       if (result.error) {
-        console.error('Erro ao mudar status:', result.error)
+        setError(result.error)
         return
       }
       router.refresh()
@@ -302,6 +304,9 @@ export function LavagemDetalheModal({ lavagem, onClose, onOcorrencia, onWhatsApp
                 )}
               </div>
             )}
+
+            {/* Erro */}
+            {error && <p className="mt-2 text-xs text-[var(--rose)]">{error}</p>}
 
             {/* Botoes gerais */}
             <div className="mt-4 flex flex-wrap gap-2">

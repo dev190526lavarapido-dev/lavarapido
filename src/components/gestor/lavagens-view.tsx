@@ -43,6 +43,7 @@ export function LavagensView({ lavagens }: LavagensViewProps) {
   const [ocorrenciaLavagemId, setOcorrenciaLavagemId] = useState<string | null>(null)
   const [whatsappState, setWhatsappState] = useState<{ lavagem: LavagemComDetalhes; tipo: string } | null>(null)
   const [loja, setLoja] = useState<ConfigLoja | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   // Fetch config loja once
   useEffect(() => {
@@ -112,10 +113,11 @@ export function LavagensView({ lavagens }: LavagensViewProps) {
   /* ============ Status change handler ============ */
   const handleStatusChange = useCallback(
     (lavagemId: string, novoStatus: LavagemStatus) => {
+      setError(null)
       startTransition(async () => {
         const result = await mudarStatus(lavagemId, novoStatus)
         if (result.error) {
-          console.error('Erro ao mudar status:', result.error)
+          setError(result.error)
           return
         }
         router.refresh()
@@ -241,6 +243,13 @@ export function LavagensView({ lavagens }: LavagensViewProps) {
           </button>
         </div>
       </div>
+
+      {/* Erro */}
+      {error && (
+        <div className="mb-2.5 rounded-xl border border-[var(--rose)] bg-[color-mix(in_oklab,var(--rose)_8%,transparent)] px-3.5 py-2 text-xs text-[var(--rose)]">
+          {error}
+        </div>
+      )}
 
       {/* Search pill */}
       <div className="mb-2.5 flex items-center gap-2 rounded-full border border-[var(--line)] bg-[var(--surface)] px-3.5 py-2">
