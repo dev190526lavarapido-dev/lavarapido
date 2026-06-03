@@ -4,6 +4,9 @@
 -- IMPORTANTE: Criar o usuario gestor ANTES no Auth > Users > Add User
 -- ============================================================
 
+-- pgcrypto: necessario para gen_random_bytes (token_publico forte)
+create extension if not exists pgcrypto;
+
 -- ============================================================
 -- 1. TABELAS
 -- ============================================================
@@ -85,7 +88,7 @@ create table if not exists public.lavagens (
   cliente_id uuid not null references public.clientes(id) on delete restrict,
   veiculo_id uuid not null references public.veiculos(id) on delete restrict,
   servico_id uuid not null references public.servicos_lavagem(id) on delete restrict,
-  token_publico text not null unique default ('lr_' || substr(md5(random()::text), 1, 12)),
+  token_publico text not null unique default encode(gen_random_bytes(16), 'hex'),
   status_atual public.lavagem_status not null default 'aguardando_lavagem',
   ativa boolean not null default true,
   valor numeric(10,2) not null default 0,
@@ -163,63 +166,148 @@ alter table public.eventos_lavagem enable row level security;
 alter table public.mensagens_whatsapp enable row level security;
 
 -- configuracoes_loja
+drop policy if exists "Gestor pode ver seus dados" on public.configuracoes_loja;
 create policy "Gestor pode ver seus dados" on public.configuracoes_loja for select using (auth.uid() = user_id);
+drop policy if exists "Gestor pode inserir seus dados" on public.configuracoes_loja;
 create policy "Gestor pode inserir seus dados" on public.configuracoes_loja for insert with check (auth.uid() = user_id);
+drop policy if exists "Gestor pode atualizar seus dados" on public.configuracoes_loja;
 create policy "Gestor pode atualizar seus dados" on public.configuracoes_loja for update using (auth.uid() = user_id);
+drop policy if exists "Gestor pode deletar seus dados" on public.configuracoes_loja;
 create policy "Gestor pode deletar seus dados" on public.configuracoes_loja for delete using (auth.uid() = user_id);
+drop policy if exists "Publico pode ver config da loja" on public.configuracoes_loja;
 create policy "Publico pode ver config da loja" on public.configuracoes_loja for select using (true);
 
 -- clientes
+drop policy if exists "Gestor pode ver seus dados" on public.clientes;
 create policy "Gestor pode ver seus dados" on public.clientes for select using (auth.uid() = user_id);
+drop policy if exists "Gestor pode inserir seus dados" on public.clientes;
 create policy "Gestor pode inserir seus dados" on public.clientes for insert with check (auth.uid() = user_id);
+drop policy if exists "Gestor pode atualizar seus dados" on public.clientes;
 create policy "Gestor pode atualizar seus dados" on public.clientes for update using (auth.uid() = user_id);
+drop policy if exists "Gestor pode deletar seus dados" on public.clientes;
 create policy "Gestor pode deletar seus dados" on public.clientes for delete using (auth.uid() = user_id);
 
 -- veiculos
+drop policy if exists "Gestor pode ver seus dados" on public.veiculos;
 create policy "Gestor pode ver seus dados" on public.veiculos for select using (auth.uid() = user_id);
+drop policy if exists "Gestor pode inserir seus dados" on public.veiculos;
 create policy "Gestor pode inserir seus dados" on public.veiculos for insert with check (auth.uid() = user_id);
+drop policy if exists "Gestor pode atualizar seus dados" on public.veiculos;
 create policy "Gestor pode atualizar seus dados" on public.veiculos for update using (auth.uid() = user_id);
+drop policy if exists "Gestor pode deletar seus dados" on public.veiculos;
 create policy "Gestor pode deletar seus dados" on public.veiculos for delete using (auth.uid() = user_id);
 
 -- servicos_lavagem
+drop policy if exists "Gestor pode ver seus dados" on public.servicos_lavagem;
 create policy "Gestor pode ver seus dados" on public.servicos_lavagem for select using (auth.uid() = user_id);
+drop policy if exists "Gestor pode inserir seus dados" on public.servicos_lavagem;
 create policy "Gestor pode inserir seus dados" on public.servicos_lavagem for insert with check (auth.uid() = user_id);
+drop policy if exists "Gestor pode atualizar seus dados" on public.servicos_lavagem;
 create policy "Gestor pode atualizar seus dados" on public.servicos_lavagem for update using (auth.uid() = user_id);
+drop policy if exists "Gestor pode deletar seus dados" on public.servicos_lavagem;
 create policy "Gestor pode deletar seus dados" on public.servicos_lavagem for delete using (auth.uid() = user_id);
+drop policy if exists "Publico pode ver servicos ativos" on public.servicos_lavagem;
 create policy "Publico pode ver servicos ativos" on public.servicos_lavagem for select using (ativo = true);
 
 -- lavagens
+drop policy if exists "Gestor pode ver seus dados" on public.lavagens;
 create policy "Gestor pode ver seus dados" on public.lavagens for select using (auth.uid() = user_id);
+drop policy if exists "Gestor pode inserir seus dados" on public.lavagens;
 create policy "Gestor pode inserir seus dados" on public.lavagens for insert with check (auth.uid() = user_id);
+drop policy if exists "Gestor pode atualizar seus dados" on public.lavagens;
 create policy "Gestor pode atualizar seus dados" on public.lavagens for update using (auth.uid() = user_id);
+drop policy if exists "Gestor pode deletar seus dados" on public.lavagens;
 create policy "Gestor pode deletar seus dados" on public.lavagens for delete using (auth.uid() = user_id);
-create policy "Publico pode ver lavagem por token" on public.lavagens for select using (true);
+-- "Publico pode ver lavagem por token" removida (using(true) vazava todas as
+-- lavagens via anon key). Acesso publico agora so via RPC get_lavagem_publica.
+drop policy if exists "Publico pode ver lavagem por token" on public.lavagens;
 
 -- eventos_lavagem
+drop policy if exists "Gestor ve eventos das suas lavagens" on public.eventos_lavagem;
 create policy "Gestor ve eventos das suas lavagens" on public.eventos_lavagem for select using (exists (select 1 from public.lavagens where lavagens.id = eventos_lavagem.lavagem_id and lavagens.user_id = auth.uid()));
+drop policy if exists "Gestor insere eventos nas suas lavagens" on public.eventos_lavagem;
 create policy "Gestor insere eventos nas suas lavagens" on public.eventos_lavagem for insert with check (exists (select 1 from public.lavagens where lavagens.id = eventos_lavagem.lavagem_id and lavagens.user_id = auth.uid()));
-create policy "Publico pode ver eventos de lavagem" on public.eventos_lavagem for select using (true);
+-- "Publico pode ver eventos de lavagem" removida (using(true) vazava todos os
+-- eventos via anon key). Acesso publico agora so via RPC get_lavagem_publica.
+drop policy if exists "Publico pode ver eventos de lavagem" on public.eventos_lavagem;
 
 -- mensagens_whatsapp
+drop policy if exists "Gestor ve mensagens das suas lavagens" on public.mensagens_whatsapp;
 create policy "Gestor ve mensagens das suas lavagens" on public.mensagens_whatsapp for select using (exists (select 1 from public.lavagens where lavagens.id = mensagens_whatsapp.lavagem_id and lavagens.user_id = auth.uid()));
+drop policy if exists "Gestor insere mensagens nas suas lavagens" on public.mensagens_whatsapp;
 create policy "Gestor insere mensagens nas suas lavagens" on public.mensagens_whatsapp for insert with check (exists (select 1 from public.lavagens where lavagens.id = mensagens_whatsapp.lavagem_id and lavagens.user_id = auth.uid()));
 
 -- ============================================================
--- 4. STORAGE BUCKETS
+-- 4. RPC PUBLICA DE ACOMPANHAMENTO POR TOKEN
+-- (espelha migration 20260603010243_harden_acompanhamento_publico)
+-- ============================================================
+
+-- RPC publica: retorna a lavagem do token (e somente ela) como jsonb
+-- com cliente/veiculo/servico aninhados + eventos. Substitui as policies
+-- inseguras `using(true)` removidas acima.
+create or replace function public.get_lavagem_publica(p_token text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_result jsonb;
+begin
+  select
+    to_jsonb(l)
+    || jsonb_build_object(
+         'cliente', to_jsonb(c),
+         'veiculo', to_jsonb(v),
+         'servico', to_jsonb(s),
+         'eventos', coalesce(
+           (
+             select jsonb_agg(to_jsonb(e) order by e.created_at asc)
+             from public.eventos_lavagem e
+             where e.lavagem_id = l.id
+           ),
+           '[]'::jsonb
+         )
+       )
+  into v_result
+  from public.lavagens l
+  join public.clientes c on c.id = l.cliente_id
+  join public.veiculos v on v.id = l.veiculo_id
+  join public.servicos_lavagem s on s.id = l.servico_id
+  where l.token_publico = p_token;
+
+  return v_result; -- null quando o token nao existe
+end;
+$$;
+
+-- Apenas execucao via RPC; sem acesso direto as tabelas.
+revoke all on function public.get_lavagem_publica(text) from public;
+grant execute on function public.get_lavagem_publica(text) to anon, authenticated;
+
+-- ============================================================
+-- 5. STORAGE BUCKETS
 -- ============================================================
 
 -- Bucket logos (da migration original de RLS)
 insert into storage.buckets (id, name, public) values ('logos', 'logos', true) on conflict (id) do nothing;
+drop policy if exists "Logos sao publicas" on storage.objects;
 create policy "Logos sao publicas" on storage.objects for select using (bucket_id = 'logos');
+drop policy if exists "Gestor pode fazer upload de logo" on storage.objects;
 create policy "Gestor pode fazer upload de logo" on storage.objects for insert with check (bucket_id = 'logos' and auth.role() = 'authenticated');
+drop policy if exists "Gestor pode atualizar logo" on storage.objects;
 create policy "Gestor pode atualizar logo" on storage.objects for update using (bucket_id = 'logos' and auth.role() = 'authenticated');
+drop policy if exists "Gestor pode deletar logo" on storage.objects;
 create policy "Gestor pode deletar logo" on storage.objects for delete using (bucket_id = 'logos' and auth.role() = 'authenticated');
 
 -- Bucket loja (logo upload novo)
 insert into storage.buckets (id, name, public) values ('loja', 'loja', true) on conflict (id) do nothing;
+drop policy if exists "Leitura publica bucket loja" on storage.objects;
 create policy "Leitura publica bucket loja" on storage.objects for select using (bucket_id = 'loja');
+drop policy if exists "Upload autenticado bucket loja" on storage.objects;
 create policy "Upload autenticado bucket loja" on storage.objects for insert with check (bucket_id = 'loja' and auth.role() = 'authenticated');
+drop policy if exists "Update autenticado bucket loja" on storage.objects;
 create policy "Update autenticado bucket loja" on storage.objects for update using (bucket_id = 'loja' and auth.role() = 'authenticated');
+drop policy if exists "Delete autenticado bucket loja" on storage.objects;
 create policy "Delete autenticado bucket loja" on storage.objects for delete using (bucket_id = 'loja' and auth.role() = 'authenticated');
 
 -- ============================================================
