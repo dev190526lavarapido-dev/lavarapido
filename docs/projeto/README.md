@@ -7,7 +7,7 @@ App de gestão de lava-rápido com painel do gestor, página pública, acompanha
 Next.js 16, TypeScript, TailwindCSS v4, shadcn/ui, Supabase (Auth + Storage + Postgres + RLS), Zod, React Hook Form
 
 ## Links
-- Produção: (pendente deploy)
+- Produção: deploy automático via Vercel a partir de `main`
 - Repo: dev190526lavarapido-dev/lavarapido
 
 ## Estado atual (MVP)
@@ -22,12 +22,13 @@ Next.js 16, TypeScript, TailwindCSS v4, shadcn/ui, Supabase (Auth + Storage + Po
 | `/gestor/clientes` | Gestor | Cadastro e listagem de clientes |
 | `/gestor/catalogo` | Gestor | Catálogo de serviços de lavagem |
 | `/gestor/configuracoes` | Gestor | Configurações da loja |
-| `/a/[token]` | Público | Acompanhamento de lavagem por token |
+| `/a/[token]` | Público | Acompanhamento de lavagem por token (via RPC segura) |
 
 ### Banco de dados (Supabase DEV)
 - Ref: `xvwfnldvbxequhabunqi`
-- 10 migrations aplicadas (configurações, clientes, veículos, serviços, lavagens, eventos, mensagens WhatsApp, triggers, RLS, seed)
+- 13 migrations no repositório (12 aplicadas + 1 pendente de aplicação manual no DEV)
 - RLS habilitado em todas as tabelas
+- RPC pública `get_lavagem_publica` para acesso anônimo seguro
 
 ### PWA
 - Manifest configurado (`/manifest.json`)
@@ -36,8 +37,8 @@ Next.js 16, TypeScript, TailwindCSS v4, shadcn/ui, Supabase (Auth + Storage + Po
 
 ## Documentos vivos
 | Arquivo | Conteúdo |
-|---|---|
-| ESTADO_ATUAL.md | Estado do projeto, ciclo ativo |
-| ARQUITETURA.md | Stack, schema, RPCs, triggers |
-| WORKFLOW.md | DEV/PROD, branches, PRs, migrations |
-| DECISOES.md | Decisões arquiteturais (ADRs) |
+|---------|----------|
+| `docs/projeto/README.md` | Este arquivo — visão geral e rotas |
+| `docs/projeto/ESTADO_ATUAL.md` | Estado detalhado: ciclo ativo, migrations, releases |
+| `docs/prd-vivo/` | Pseudocódigo espelho do código real (por arquivo) |
+| `docs/iteracoes/` | Histórico de iterações (PRD + PLANO + EXECUCAO) |
