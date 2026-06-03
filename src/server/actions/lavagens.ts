@@ -86,15 +86,24 @@ export async function mudarStatus(
     updates.ativa = true
   }
 
+  // Compare-and-swap: o update só aplica se o status ainda for o que lemos.
+  // Se outra aba/clique já alterou o status, 0 linhas são afetadas (maybeSingle → null).
   const { data: atualizada, error } = await supabase
     .from('lavagens')
     .update(updates)
     .eq('id', lavagemId)
     .eq('user_id', user.id)
+    .eq('status_atual', statusAtual)
     .select()
-    .single()
+    .maybeSingle()
 
   if (error) return { error: error.message }
+
+  // 0 linhas afetadas → o estado mudou entre a leitura e a escrita: perdemos a corrida.
+  // Não inserir evento nem revalidar para evitar evento duplicado / transição inválida.
+  if (!atualizada) {
+    return { error: 'O status já foi alterado. Recarregue a página.' }
+  }
 
   // Criar evento
   await supabase.from('eventos_lavagem').insert({
