@@ -9,30 +9,44 @@ export async function getDashboardStats() {
   today.setHours(0, 0, 0, 0)
   const todayISO = today.toISOString()
 
-  const { data: lavagens } = await supabase
-    .from('lavagens')
-    .select('id, status_atual, ativa, valor, entrada_em, retirada_em')
+  const lavagens = () => supabase.from('lavagens')
 
-  const all = lavagens ?? []
-  const entradas = all.filter(l => l.entrada_em >= todayISO)
-  const aguardando = all.filter(l => l.status_atual === 'aguardando_lavagem')
-  const lavando = all.filter(l => l.status_atual === 'lavando')
-  const concluidas = all.filter(l => l.status_atual === 'lavagem_concluida')
-  const ocorrencias = all.filter(l => l.status_atual === 'ocorrencia')
-  const retirados = all.filter(l => l.status_atual === 'retirado')
+  const [
+    entradasCount,
+    aguardandoCount,
+    lavandoCount,
+    concluidasCount,
+    ocorrenciasCount,
+    retiradosCount,
+    entradasHoje,
+    retiradosHoje,
+  ] = await Promise.all([
+    lavagens().select('*', { count: 'exact', head: true }).gte('entrada_em', todayISO),
+    lavagens().select('*', { count: 'exact', head: true }).eq('status_atual', 'aguardando_lavagem'),
+    lavagens().select('*', { count: 'exact', head: true }).eq('status_atual', 'lavando'),
+    lavagens().select('*', { count: 'exact', head: true }).eq('status_atual', 'lavagem_concluida'),
+    lavagens().select('*', { count: 'exact', head: true }).eq('status_atual', 'ocorrencia'),
+    lavagens().select('*', { count: 'exact', head: true }).eq('status_atual', 'retirado'),
+    lavagens().select('valor').gte('entrada_em', todayISO),
+    lavagens().select('valor').eq('status_atual', 'retirado').gte('retirada_em', todayISO),
+  ])
 
-  const faturamentoPrevisto = entradas.reduce((s, l) => s + Number(l.valor || 0), 0)
-  const dinheiroRecebido = retirados
-    .filter(l => l.retirada_em && l.retirada_em >= todayISO)
-    .reduce((s, l) => s + Number(l.valor || 0), 0)
+  const faturamentoPrevisto = (entradasHoje.data ?? []).reduce(
+    (s, l) => s + Number(l.valor || 0),
+    0,
+  )
+  const dinheiroRecebido = (retiradosHoje.data ?? []).reduce(
+    (s, l) => s + Number(l.valor || 0),
+    0,
+  )
 
   return {
-    entradas: entradas.length,
-    aguardando: aguardando.length,
-    lavando: lavando.length,
-    concluidas: concluidas.length,
-    ocorrencias: ocorrencias.length,
-    retirados: retirados.length,
+    entradas: entradasCount.count ?? 0,
+    aguardando: aguardandoCount.count ?? 0,
+    lavando: lavandoCount.count ?? 0,
+    concluidas: concluidasCount.count ?? 0,
+    ocorrencias: ocorrenciasCount.count ?? 0,
+    retirados: retiradosCount.count ?? 0,
     faturamentoPrevisto,
     dinheiroRecebido,
   }

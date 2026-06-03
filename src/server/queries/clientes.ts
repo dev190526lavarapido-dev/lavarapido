@@ -8,24 +8,14 @@ export async function getClientes(): Promise<ClienteComVeiculos[]> {
 
   const { data: clientes, error } = await supabase
     .from('clientes')
-    .select('*, veiculos(*)')
+    .select('*, veiculos(*), lavagens(count)')
     .order('nome', { ascending: true })
 
   if (error) return []
 
-  // Buscar contagem de lavagens por cliente
-  const { data: lavagens } = await supabase
-    .from('lavagens')
-    .select('cliente_id')
-
-  const contagemPorCliente: Record<string, number> = {}
-  for (const l of lavagens ?? []) {
-    contagemPorCliente[l.cliente_id] = (contagemPorCliente[l.cliente_id] || 0) + 1
-  }
-
-  return (clientes ?? []).map(c => ({
+  return (clientes ?? []).map(({ lavagens, ...c }) => ({
     ...c,
-    total_lavagens: contagemPorCliente[c.id] || 0,
+    total_lavagens: lavagens?.[0]?.count ?? 0,
   })) as ClienteComVeiculos[]
 }
 
