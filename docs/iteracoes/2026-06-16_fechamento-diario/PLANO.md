@@ -1,6 +1,6 @@
 # Plano: Fechamento diário + consolidado por dia
 
-> Iteração: `2026-06-16_fechamento-diario` · Status: 🟡 código pronto · banco 🔴 bloqueado (DEV inexistente)
+> Iteração: `2026-06-16_fechamento-diario` · Status: 🟢 concluída em DEV (aguardando promoção)
 > PRD: [PRD.md](PRD.md) · Execução: [EXECUCAO.md](EXECUCAO.md) · ADR: [ADR.md](ADR.md)
 
 ## Contexto
@@ -33,9 +33,11 @@ Objetivo: persistir o consolidado diário e agendar o disparo automático.
 - **Slice 1.2** · Função `fechar_dia(p_data date)` + RPC manual ✅
   - [x] Task 1.2.1 — `fechar_dia(date,uuid)` core + `fechar_dia(date)` wrapper do cron; janela via `timezone('America/Sao_Paulo', ...)`, agrega + monta `detalhe` jsonb, upsert
   - [x] Task 1.2.2 — RPC `fechar_dia_atual()` corrigida pra **SECURITY DEFINER** (revisão de permissão); `grant execute` só pra `authenticated`
-- **Slice 1.3** · Agendamento pg_cron · 🔴 aplicação bloqueada
+- **Slice 1.3** · Agendamento pg_cron ✅
   - [x] Task 1.3.1 — Migration `create extension if not exists pg_cron` + `cron.schedule('fechar-dia-diario', '0 3 * * *', ...)`
-  - [ ] 🔴 Task 1.3.2 — **BLOQUEADO**: aplicar/validar no DEV (projeto DEV inexistente — NXDOMAIN)
+  - [x] Task 1.3.2 — Aplicado no DEV; pg_cron habilitado + job agendado; smoke autenticado de `fechar_dia_atual` OK
+- **Slice 1.4** · 🔒 Fix de grants (descoberto na validação ao vivo) ✅
+  - [x] Task 1.4.1 — Migration `20260617134219_fix_grants_fechar_dia`: `revoke execute` de `anon`/`authenticated` nas funções internas (default privileges do Supabase furavam o `revoke from public`). Revalidado: anon → `42501 permission denied`.
 
 ### Fase 2 · Dashboard no fuso de Brasília
 
@@ -64,8 +66,8 @@ Objetivo: extrato clicável por dia com resumo + lista de lavagens; botão manua
 
 - **Slice 4.1** · Estático ✅
   - [x] Task 4.1.1 — `tsc --noEmit` + `build` + `lint` verdes
-- **Slice 4.2** · E2E (ler skill `e2e-performance` antes) · 🔴 bloqueado
-  - [ ] 🔴 Task 4.2.1 — **BLOQUEADO**: precisa de DEV vivo + seeds pra rodar
+- **Slice 4.2** · E2E (ler skill `e2e-performance` antes) ✅
+  - [x] Task 4.2.1 — `tests/e2e/fechamentos.spec.ts` (fechar → histórico → extrato). Suite completa **15/15 verde** (~2.8 min)
 - **Slice 4.3** · Sentinela de segurança ✅
   - [x] Task 4.3.1 — Revisão estática: **PROSSEGUIR** (achou e corrigiu o bug do SECURITY DEFINER; 2 LOW informativos)
 
@@ -78,21 +80,23 @@ Objetivo: extrato clicável por dia com resumo + lista de lavagens; botão manua
 
 ## Verificação de conclusão
 
-- [ ] Fechamento automático grava o dia que acabou à meia-noite Brasília
-- [ ] Dashboard reflete o dia corrente com fronteira 00:00 Brasília
-- [ ] Aba lista dias e extrato abre com totais + lista de lavagens
-- [ ] Botão manual fecha/refecha idempotente
-- [ ] RLS isola por usuário e bloqueia escrita direta; revisão da sentinela OK
-- [ ] tsc / build / lint / E2E verdes
-- [ ] EXECUCAO.md e documentação de estado atualizados
+- [x] Fechamento agendado (pg_cron `fechar-dia-diario` 03:00 UTC) — job criado no DEV
+- [x] Dashboard reflete o dia corrente com fronteira 00:00 Brasília
+- [x] Aba lista dias e extrato abre com totais + lista de lavagens (E2E)
+- [x] Botão manual fecha/refecha idempotente (smoke autenticado + E2E)
+- [x] RLS isola por usuário e bloqueia escrita direta; anon bloqueado nas RPCs (revalidado)
+- [x] tsc / build / lint / E2E (15/15) verdes
+- [x] EXECUCAO.md e documentação de estado atualizados
 
 ## Riscos e decisões pendentes
 
-- **pg_cron no plano Supabase**: a extensão precisa estar disponível/habilitável no
-  projeto DEV. Se falhar, fallback é Vercel Cron + API route (mesma função `fechar_dia`
-  via RPC). Validar na Task 1.3.2 antes de seguir.
-- **Job cron só existe no banco onde foi criado**: ao promover pra PROD, a migration do
+- ✅ **pg_cron no plano Supabase**: confirmado disponível — `create extension pg_cron` aplicou sem erro.
+  Fallback (Vercel Cron) não foi necessário.
+- ⚠️ **Job cron só existe no banco onde foi criado**: ao promover pra PROD, a migration do
   cron precisa rodar no banco PROD também — tratado no release.
+- 🔒 **Default privileges do Supabase**: `revoke from public` não remove grants diretos a
+  `anon`/`authenticated`. Sempre revogar explicitamente desses roles em funções sensíveis
+  (corrigido na migration `20260617134219`).
 - **Detalhe imutável vs. dados vivos**: o `detalhe` jsonb congela a foto do dia no
   momento do fechamento; edições posteriores em lavagens não refletem no extrato (é o
   comportamento desejado pra um "extrato").

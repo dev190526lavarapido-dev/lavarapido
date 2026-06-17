@@ -57,3 +57,32 @@ Usuário optou por continuar com o código enquanto o DEV não volta. Aplicaçã
 ### Pendências pra quando o DEV voltar
 1. `supabase db push` das 3 migrations + validar (extensão pg_cron, `cron.job`, `select fechar_dia(current_date)`).
 2. Escrever e rodar a spec E2E (fechar → histórico → extrato).
+
+## 2026-06-17 — DEV voltou: migrations aplicadas + validação + fix de segurança ✅
+
+O DEV (`xvwfnldvbxequhabunqi`) estava **pausado** (NXDOMAIN); voltou a resolver. Confirmado que é
+o banco real (gestor de teste `marquinhos@lavarapido.com` loga, criado 2026-05-19). Nada perdido.
+
+**Aplicação (`supabase db push`)**: aplicou 6 migrations pendentes (add_paleta, storage_bucket,
+harden + as 3 desta iteração). `create extension pg_cron` **sem erro → pg_cron disponível** (fallback
+Vercel Cron descartado). `migration list` confirma as 3 como aplicadas no remoto.
+
+**Validação ao vivo (REST):**
+- Tabela `fechamentos_diarios` → 200 `[]` (existe; RLS vazia pra anon).
+- 🐛 **HIGH encontrado**: anon conseguia executar `fechar_dia(date,uuid)` e `fechar_dia(date)` — o
+  `revoke ... from public` da migration `...021739` NÃO removeu os grants diretos a `anon`/`authenticated`
+  que o **default privileges do Supabase** concede a funções novas do schema `public`. Com `user_id`
+  real, anon poderia sobrescrever/forjar fechamento (SECURITY DEFINER bypassa RLS).
+- 🔒 **Fix**: migration `20260617134219_fix_grants_fechar_dia` revoga EXECUTE de `anon`/`authenticated`
+  nas internas; mantém só `fechar_dia_atual` pra `authenticated`. Revalidado: anon → `42501 permission denied`
+  nas três. (Static review da sentinela não pegou — só a validação ao vivo revelou.)
+- **Smoke autenticado** (token do gestor): `fechar_dia_atual()` → `"2026-06-17"` e gravou
+  `{total_lavagens:0, faturamento:0, novos_clientes:0}` (sem atividade hoje); RLS deixa o dono ler.
+
+**E2E**: `tests/e2e/fechamentos.spec.ts` (fechar → histórico → extrato). Cache `.next` corrompido
+(conflito build→dev) travou o webServer 1x; resolvido com `rm -rf .next`. **Suite completa: 15/15 verde (~2.8 min).**
+
+**Docs**: README + ESTADO_ATUAL revertidos (DEV vivo, 17 migrations aplicadas) + ADR.
+
+Iteração **concluída em DEV**. Commit local; push/PR a decidir. Promoção a PROD precisa rodar as
+migrations no banco PROD também (cron incluso) — só com autorização explícita.

@@ -1,19 +1,12 @@
 # Estado Atual — lavarapido
 
-## ⚠️ BLOQUEIO DE AMBIENTE (2026-06-16)
-O projeto Supabase **DEV configurado no repo (`xvwfnldvbxequhabunqi`) não existe mais** —
-o host `xvwfnldvbxequhabunqi.supabase.co` retorna **NXDOMAIN** (não é pausa, é inexistente).
-Além disso, a CLI do Supabase está logada numa conta/org (`orlwnechxfslpfgbsmha`) que só tem
-os projetos "Fonte rotas DEV" e "fonterotas" — nenhum é o DEV/PROD do lavarapido.
-PROD (`jlcjguchifzvhkczveie`) ainda resolve normalmente.
-
-**Impacto**: não é possível aplicar/validar migrations nem rodar E2E em DEV até isso ser
-resolvido (recriar o DEV com novo ref + atualizar `.env.local`/`config`/`CLAUDE.md`/memória,
-ou logar a conta correta). Ver `docs/iteracoes/2026-06-16_fechamento-diario/EXECUCAO.md`.
-
 ## Ciclo ativo
-Iteração `2026-06-16_fechamento-diario` — **código pronto e verde (tsc/build/lint + sentinela),
-porém banco bloqueado** (ver acima). 3 migrations escritas, **não aplicadas**.
+Iteração `2026-06-16_fechamento-diario` — **concluída em DEV** (código + migrations + E2E verdes),
+aguardando promoção para `main`.
+
+> Nota de ambiente: em 2026-06-16 o projeto DEV (`xvwfnldvbxequhabunqi`) apareceu fora do ar
+> (NXDOMAIN, projeto pausado). Em 2026-06-17 voltou a resolver e as migrations foram aplicadas
+> normalmente — nenhum dado foi perdido (era pausa/migrations pendentes, não recriação).
 
 ### O que foi feito
 - Tabela `fechamentos_diarios` (snapshot por `user_id`+`data`) + RLS (só SELECT do dono).
@@ -22,10 +15,16 @@ porém banco bloqueado** (ver acima). 3 migrations escritas, **não aplicadas**.
 - Correção do fuso do dashboard: "hoje" agora é 00:00 **Brasília** (antes era 00:00 UTC).
 - Aba `/gestor/fechamentos` (extrato clicável) + `/gestor/fechamentos/[data]` (resumo + lavagens).
 - Botão manual "Fechar dia de hoje".
+- 🔒 **Fix de segurança** (migration `20260617134219`): `revoke from public` não basta no Supabase
+  (default privileges concedem EXECUTE a `anon`/`authenticated` direto). Revogado explicitamente
+  de `anon`/`authenticated` nas funções internas — anon não chama mais nenhuma `fechar_dia*`.
 
-### Pendências da iteração (gated no DEV voltar)
-- Aplicar as 3 migrations em DEV (`supabase db push`) e validar (extensão pg_cron, job, `fechar_dia`).
-- Escrever + rodar spec E2E (fechar → ver no histórico → abrir extrato).
+### Validação (DEV)
+- `tsc` / `build` / `lint` verdes · sentinela: PROSSEGUIR.
+- Migrations aplicadas e confirmadas (`supabase migration list`); pg_cron habilitado e job agendado.
+- Smoke autenticado: `fechar_dia_atual()` grava e RLS isola por dono.
+- Anon bloqueado (`42501 permission denied`) em `fechar_dia_atual`/`fechar_dia` após o fix.
+- E2E: suite completa **15/15 verde** (~2.8 min), incl. `fechamentos.spec.ts`.
 
 ---
 
@@ -60,8 +59,8 @@ supabase db push --linked   # ou via dashboard Supabase DEV
 ```
 
 ## Banco de dados (Supabase DEV)
-- **Ref**: `xvwfnldvbxequhabunqi` ⚠️ host não resolve (NXDOMAIN) — ver bloqueio no topo
-- **Migrations**: 16 no repositório (1 da hardening + 3 da iteração de fechamento pendentes de aplicação)
+- **Ref**: `xvwfnldvbxequhabunqi`
+- **Migrations**: 17 no repositório, **todas aplicadas em DEV** (inclui hardening + fechamento + fix de grants)
 - **RLS**: habilitado em todas as tabelas
 - **RPC pública**: `get_lavagem_publica(p_token text)` — única rota de acesso anônimo a dados de lavagem
 - **RPC autenticada**: `fechar_dia_atual()` — gestor consolida o próprio dia (SECURITY DEFINER, deriva user de `auth.uid()`)

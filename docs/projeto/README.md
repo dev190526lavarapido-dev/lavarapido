@@ -27,8 +27,8 @@ Next.js 16, TypeScript, TailwindCSS v4, shadcn/ui, Supabase (Auth + Storage + Po
 | `/a/[token]` | Público | Acompanhamento de lavagem por token (via RPC segura) |
 
 ### Banco de dados (Supabase DEV)
-- Ref: `xvwfnldvbxequhabunqi` ⚠️ **host não resolve mais (NXDOMAIN)** — ver `ESTADO_ATUAL.md`
-- 16 migrations no repositório (3 da iteração de fechamento diário pendentes de aplicação)
+- Ref: `xvwfnldvbxequhabunqi`
+- 17 migrations no repositório, todas aplicadas em DEV
 - RLS habilitado em todas as tabelas
 - RPC pública `get_lavagem_publica` para acesso anônimo seguro
 - RPC autenticada `fechar_dia_atual()` — gestor fecha/refaz o consolidado do dia
