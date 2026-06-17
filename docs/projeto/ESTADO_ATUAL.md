@@ -1,8 +1,10 @@
 # Estado Atual — lavarapido
 
 ## Ciclo ativo
-Iteração `2026-06-16_fechamento-diario` — **concluída em DEV** (código + migrations + E2E verdes),
-aguardando promoção para `main`.
+**Nenhum** — aguardando próximo PRD.
+
+Última iteração `2026-06-16_fechamento-diario` — **concluída e promovida pra produção**
+(release 2026-06-17, PR #34, `main` em `23446f8`).
 
 > Nota de ambiente: em 2026-06-16 o projeto DEV (`xvwfnldvbxequhabunqi`) apareceu fora do ar
 > (NXDOMAIN, projeto pausado). Em 2026-06-17 voltou a resolver e as migrations foram aplicadas
@@ -29,17 +31,18 @@ aguardando promoção para `main`.
 ---
 
 ## Em produção
-- **Último commit em main**: `ad2a3ac` (feat: tema esmeralda, paletas, logo upload, edicao clientes, deploy prep)
-- **Migrations em PROD**: 12 (até `20260520150000_create_storage_bucket_loja.sql`)
+- **Último commit em main**: `23446f8` (release: hardening (release-1) + fechamento diario (#34))
+- **Migrations em PROD**: 17 — todas aplicadas (hardening + fechamento + fix de grants), via SQL editor no PROD
+- **pg_cron em PROD**: job `fechar-dia-diario` agendado (00:00 Brasília)
 - **URL**: Deploy automático via Vercel a partir da branch `main`
 
-## Ciclo ativo
-Iteração `2026-06-02_hardening-pos-analise` — **concluída em DEV**, aguardando promoção para `main`.
+## Iteração 2026-06-02_hardening-pos-analise — RELEASADA
+Promovida pra produção em 2026-06-17 (junto com o fechamento, PR #34).
 
 ### O que foi feito nesta iteração
 | Achado | Descrição | Status |
 |--------|-----------|--------|
-| #1 — RLS acompanhamento público | Policies `using(true)` em `lavagens` e `eventos_lavagem` vazavam todas as linhas via anon key. Substituídas por RPC `get_lavagem_publica` com `SECURITY DEFINER`. | Aplicado em DEV (migration pendente em PROD) |
+| #1 — RLS acompanhamento público | Policies `using(true)` em `lavagens` e `eventos_lavagem` vazavam todas as linhas via anon key. Substituídas por RPC `get_lavagem_publica` com `SECURITY DEFINER`. | Aplicado em DEV e PROD |
 | #2 — Cliente órfão | `criarClienteComVeiculo` criava cliente mesmo quando veículo falhava. Corrigido com transação atômica. | Mergeado |
 | #3 — Race de status | `mudarStatus` sobrescrevia status concorrente. Corrigido com compare-and-swap. | Mergeado |
 | #4 — EventoStatus tipado | Tipo `EventoStatus` formalizado; marco `'entrada'` incluído na timeline. | Mergeado |
@@ -48,15 +51,6 @@ Iteração `2026-06-02_hardening-pos-analise` — **concluída em DEV**, aguarda
 | #7 — setState em useEffect | Eliminado padrão proibido no whatsapp-modal. | Mergeado |
 | #8 — Performance queries | Contagens e somas movidas para o banco (agregação SQL). | Mergeado |
 | #9 — Docs | Placeholders e links quebrados nos docs de projeto corrigidos. | Este commit |
-
-### Migration pendente de aplicação manual no DEV
-```
-supabase/migrations/20260603010243_harden_acompanhamento_publico.sql
-```
-Aplicar com:
-```bash
-supabase db push --linked   # ou via dashboard Supabase DEV
-```
 
 ## Banco de dados (Supabase DEV)
 - **Ref**: `xvwfnldvbxequhabunqi`
@@ -70,4 +64,4 @@ supabase db push --linked   # ou via dashboard Supabase DEV
 | Data | Branch | Hash | Descrição |
 |------|--------|------|-----------|
 | 2026-05-20 | main | `ad2a3ac` | Tema esmeralda, paletas, logo upload, edição de clientes, prep deploy |
-| 2026-06-02 | dev | (pendente promoção) | Hardening pós-análise (segurança, integridade, performance, polish) |
+| 2026-06-17 | main | `23446f8` | Release-1: hardening pós-análise + fechamento diário (PR #34); 5 migrations aplicadas no PROD |
