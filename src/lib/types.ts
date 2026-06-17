@@ -101,3 +101,28 @@ export interface ClienteComVeiculos extends Cliente {
   veiculos: Veiculo[]
   total_lavagens: number
 }
+
+// Item da lista imutável de lavagens salva no fechamento do dia
+export interface FechamentoLavagemDetalhe {
+  id: string
+  cliente: string
+  placa: string
+  modelo: string
+  servico: string
+  valor: number
+  status: Lavagem['status_atual']
+  entrada_em: string
+}
+
+// Snapshot consolidado de um dia (turno fechado)
+export interface FechamentoDiario {
+  id: string
+  user_id: string
+  data: string // YYYY-MM-DD
+  total_lavagens: number
+  faturamento: number
+  novos_clientes: number
+  detalhe: FechamentoLavagemDetalhe[]
+  created_at: string
+  updated_at: string
+}

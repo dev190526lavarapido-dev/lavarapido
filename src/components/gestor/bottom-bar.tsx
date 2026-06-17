@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Columns3, Plus, Users, Tag } from "lucide-react";
+import { LayoutDashboard, Columns3, Plus, Users, Tag, Receipt } from "lucide-react";
 
 const TABS = [
   { href: "/gestor/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -10,6 +10,7 @@ const TABS = [
   { href: "/gestor/nova-lavagem", label: "Nova", icon: Plus, cta: true },
   { href: "/gestor/clientes", label: "Clientes", icon: Users },
   { href: "/gestor/catalogo", label: "Catálogo", icon: Tag },
+  { href: "/gestor/fechamentos", label: "Extrato", icon: Receipt },
 ];
 
 export function BottomBar() {
@@ -38,7 +39,7 @@ export function BottomBar() {
           <Link
             key={tab.href}
             href={tab.href}
-            className={`flex min-w-[56px] flex-col items-center gap-[3px] rounded-[12px] px-2.5 py-2 text-[11px] font-medium ${
+            className={`flex min-w-[48px] flex-col items-center gap-[3px] rounded-[12px] px-1.5 py-2 text-[11px] font-medium ${
               isActive ? "text-ink" : "text-[var(--muted-color)]"
             }`}
           >

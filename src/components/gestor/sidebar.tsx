@@ -7,6 +7,7 @@ import {
   Columns3,
   Users,
   Tag,
+  Receipt,
   Settings,
   Plus,
 } from "lucide-react";
@@ -16,6 +17,7 @@ const NAV_ITEMS = [
   { href: "/gestor/lavagens", label: "Lavagens", icon: Columns3 },
   { href: "/gestor/clientes", label: "Clientes", icon: Users },
   { href: "/gestor/catalogo", label: "Catálogo", icon: Tag },
+  { href: "/gestor/fechamentos", label: "Fechamentos", icon: Receipt },
   { href: "/gestor/configuracoes", label: "Configurações", icon: Settings },
 ];
 

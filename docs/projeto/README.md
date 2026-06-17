@@ -21,14 +21,18 @@ Next.js 16, TypeScript, TailwindCSS v4, shadcn/ui, Supabase (Auth + Storage + Po
 | `/gestor/nova-lavagem` | Gestor | Criar nova lavagem |
 | `/gestor/clientes` | Gestor | Cadastro e listagem de clientes |
 | `/gestor/catalogo` | Gestor | Catálogo de serviços de lavagem |
+| `/gestor/fechamentos` | Gestor | Histórico de fechamentos diários (extrato clicável por dia) |
+| `/gestor/fechamentos/[data]` | Gestor | Detalhe do dia: resumo + lista de lavagens |
 | `/gestor/configuracoes` | Gestor | Configurações da loja |
 | `/a/[token]` | Público | Acompanhamento de lavagem por token (via RPC segura) |
 
 ### Banco de dados (Supabase DEV)
 - Ref: `xvwfnldvbxequhabunqi`
-- 13 migrations no repositório (12 aplicadas + 1 pendente de aplicação manual no DEV)
+- 17 migrations no repositório, todas aplicadas em DEV
 - RLS habilitado em todas as tabelas
 - RPC pública `get_lavagem_publica` para acesso anônimo seguro
+- RPC autenticada `fechar_dia_atual()` — gestor fecha/refaz o consolidado do dia
+- Job `pg_cron` `fechar-dia-diario` (03:00 UTC = 00:00 Brasília) consolida o dia anterior
 
 ### PWA
 - Manifest configurado (`/manifest.json`)
