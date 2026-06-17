@@ -6,24 +6,11 @@ import type { LavagemComDetalhes, EventoLavagem, ServicoLavagem } from '@/lib/ty
 export async function getLavagemPorToken(token: string): Promise<(LavagemComDetalhes & { eventos: EventoLavagem[] }) | null> {
   const supabase = await createClient()
 
-  const { data: lavagem, error } = await supabase
-    .from('lavagens')
-    .select('*, cliente:clientes(*), veiculo:veiculos(*), servico:servicos_lavagem(*)')
-    .eq('token_publico', token)
-    .single()
+  const { data, error } = await supabase.rpc('get_lavagem_publica', { p_token: token })
 
-  if (error || !lavagem) return null
+  if (error || !data) return null
 
-  const { data: eventos } = await supabase
-    .from('eventos_lavagem')
-    .select('*')
-    .eq('lavagem_id', lavagem.id)
-    .order('created_at', { ascending: true })
-
-  return {
-    ...(lavagem as unknown as LavagemComDetalhes),
-    eventos: (eventos ?? []) as EventoLavagem[],
-  }
+  return data as unknown as LavagemComDetalhes & { eventos: EventoLavagem[] }
 }
 
 export async function getServicosPublicos(): Promise<ServicoLavagem[]> {

@@ -5,8 +5,8 @@
 RECEBE: params (Promise<{ token: string }>)
 
 BUSCA paralela (Promise.all)
-  lavagem = getLavagemPorToken(token) → publicas
-  loja = getConfigLoja() → ver [config.md](../../server/queries/config.md)
+  lavagem = getLavagemPorToken(token) → ver [server/queries/publicas.md](../../server/queries/publicas.md) → BD [banco_de_dados.md](../../banco_de_dados.md) → lavagens
+  loja = getConfigLoja() → ver [server/queries/config.md](../../server/queries/config.md) → BD [banco_de_dados.md](../../banco_de_dados.md) → config_loja
 
 SE lavagem == null OU lavagem.ativa == false OU lavagem.status_atual == "retirado" FACA
   redirect("/?lavagem=encerrada")
@@ -38,7 +38,7 @@ RENDERIZA
         div font-heading 30px font-bold → "A gente ta cuidando do seu carro 🚗"
 
       VEICULO flex items-center gap-3
-        PlacaTag placa=lavagem.veiculo?.placa size="big"
+        PlacaTag placa=lavagem.veiculo?.placa size="big" → ver [components/shared/placa-tag.md](../../components/shared/placa-tag.md)
         div
           div font-semibold → lavagem.veiculo?.modelo
           div 12px muted → lavagem.veiculo?.cor
@@ -58,7 +58,7 @@ RENDERIZA
 
     LINHA DO TEMPO px-[18px] pt-1 pb-[18px]
       h3 18px font-bold "Linha do tempo"
-      Timeline eventos=lavagem.eventos animateLast=true
+      Timeline eventos=lavagem.eventos animateLast=true → ver [components/shared/timeline.md](../../components/shared/timeline.md)
 
     CTAs px-[18px]
       h3 18px font-bold "Precisa falar com a gente?"

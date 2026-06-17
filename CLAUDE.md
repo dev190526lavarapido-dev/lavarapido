@@ -23,7 +23,7 @@ App de gestão de lava-rápido com painel do gestor, página pública, acompanha
 
 **Stack:** Next.js 16, TypeScript, TailwindCSS v4, shadcn/ui, Supabase (Auth + Storage + Postgres + RLS), Zod, React Hook Form
 
-**Ambiente de produção:** (pendente deploy)
+**Ambiente de produção:** Vercel (deploy automático a partir de `main`)
 
 ---
 
@@ -31,12 +31,15 @@ App de gestão de lava-rápido com painel do gestor, página pública, acompanha
 
 ### 3.1 DEV vs PROD — bancos separados
 
-| Ambiente | Supabase Ref | Branch Git | Uso |
-|----------|-------------|------------|-----|
-| **DEV** | `xvwfnldvbxequhabunqi` | `dev` | Todo trabalho de desenvolvimento, testes, migrations |
-| **PROD** | `(pendente)` | `main` | Produção — só recebe promoção autorizada |
+| Ambiente | Supabase Ref | URL | Branch Git | Uso |
+|----------|-------------|-----|------------|-----|
+| **DEV** | `xvwfnldvbxequhabunqi` | `https://xvwfnldvbxequhabunqi.supabase.co` | `dev` | Todo trabalho de desenvolvimento, testes, migrations |
+| **PROD** | `jlcjguchifzvhkczveie` | `https://jlcjguchifzvhkczveie.supabase.co` | `main` | Produção — só recebe promoção autorizada via skill `promover-dev-main` |
 
 - **NUNCA** rodar migrations, seeds ou queries com escrita direto no banco PROD.
+- **NUNCA** fazer push direto na branch `main`.
+- Promoção dev → main **somente** via PR com confirmação dupla do usuário (skill `promover-dev-main`).
+- `.env.local` SEMPRE aponta pro banco DEV. Vercel cuida das env vars de PROD.
 - Variáveis de ambiente DEV e PROD são separadas; conferir `.env` / `.env.local` antes de rodar qualquer comando.
 
 ### 3.2 Branches e fluxo Git

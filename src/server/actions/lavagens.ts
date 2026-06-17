@@ -3,8 +3,9 @@
 import { createClient } from '@/lib/supabase/server'
 import { novaLavagemSchema, ocorrenciaSchema } from '@/lib/validations'
 import { STATUS_TRANSITIONS } from '@/lib/constants'
-import type { LavagemStatus } from '@/lib/constants'
+import type { LavagemStatus, EventoStatus } from '@/lib/constants'
 import { revalidatePath } from 'next/cache'
+import { randomBytes } from 'node:crypto'
 import type { Lavagem } from '@/lib/types'
 
 export async function criarLavagem(data: {
@@ -23,8 +24,8 @@ export async function criarLavagem(data: {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return { error: 'Não autenticado' }
 
-  // Gerar token público
-  const token = crypto.randomUUID().replace(/-/g, '').slice(0, 12)
+  // Gerar token público forte (128 bits), consistente com o default do schema
+  const token = randomBytes(16).toString('hex')
 
   const { data: lavagem, error } = await supabase
     .from('lavagens')
@@ -42,10 +43,12 @@ export async function criarLavagem(data: {
   if (error || !lavagem) return { error: error?.message ?? 'Erro ao criar lavagem' }
 
   // Criar eventos iniciais
-  await supabase.from('eventos_lavagem').insert([
+  // 'entrada' é um marco de evento válido (EventoStatus), não um status de transição
+  const eventosIniciais: { lavagem_id: string; status: EventoStatus; descricao: string }[] = [
     { lavagem_id: lavagem.id, status: 'entrada', descricao: 'Veículo deu entrada' },
     { lavagem_id: lavagem.id, status: 'aguardando_lavagem', descricao: 'Aguardando lavagem' },
-  ])
+  ]
+  await supabase.from('eventos_lavagem').insert(eventosIniciais)
 
   revalidatePath('/gestor/dashboard')
   revalidatePath('/gestor/lavagens')
@@ -85,15 +88,24 @@ export async function mudarStatus(
     updates.ativa = true
   }
 
+  // Compare-and-swap: o update só aplica se o status ainda for o que lemos.
+  // Se outra aba/clique já alterou o status, 0 linhas são afetadas (maybeSingle → null).
   const { data: atualizada, error } = await supabase
     .from('lavagens')
     .update(updates)
     .eq('id', lavagemId)
     .eq('user_id', user.id)
+    .eq('status_atual', statusAtual)
     .select()
-    .single()
+    .maybeSingle()
 
   if (error) return { error: error.message }
+
+  // 0 linhas afetadas → o estado mudou entre a leitura e a escrita: perdemos a corrida.
+  // Não inserir evento nem revalidar para evitar evento duplicado / transição inválida.
+  if (!atualizada) {
+    return { error: 'O status já foi alterado. Recarregue a página.' }
+  }
 
   // Criar evento
   await supabase.from('eventos_lavagem').insert({

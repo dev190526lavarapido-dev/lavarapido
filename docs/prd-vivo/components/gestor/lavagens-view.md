@@ -46,7 +46,7 @@ filtered = useMemo:
   SE search vazio → lavagens completas
   SENAO filtrar por cliente.nome, veiculo.placa, veiculo.modelo
 
-byStatus(key) = filtered filtrados por status_atual == key
+byStatus(key) = filtered filtrados por status_atual == key, ordenados por entrada_em crescente
 
 counts = useMemo: { todos: filtered.length, [col.key]: byStatus(col.key).length, ... }
 

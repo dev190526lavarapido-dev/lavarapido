@@ -9,8 +9,8 @@ ESTADO derivado
   encerrada = params.lavagem === "encerrada"
 
 BUSCA paralela (Promise.all)
-  config = getConfigLojaPublica() → ver [config.md](../server/queries/config.md)
-  servicos = getServicosPublicos() → publicas
+  config = getConfigLojaPublica() → ver [server/queries/config.md](../server/queries/config.md) → BD [banco_de_dados.md](../banco_de_dados.md) → config_loja
+  servicos = getServicosPublicos() → ver [server/queries/publicas.md](../server/queries/publicas.md) → BD [banco_de_dados.md](../banco_de_dados.md) → servicos
 
 SE config == null FACA
   RENDERIZA

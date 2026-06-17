@@ -451,7 +451,7 @@ export function NovaLavagemWizard({
               Escolha o serviço
             </h3>
             <div className="flex flex-col gap-2">
-              {[...servicos].sort((a, b) => (a.ordem_exibicao ?? 0) - (b.ordem_exibicao ?? 0)).map((s) => {
+              {servicos.map((s) => {
                 const isSelected = selectedServico?.id === s.id;
                 return (
                   <button

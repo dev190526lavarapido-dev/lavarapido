@@ -20,6 +20,10 @@ FACA
     clonar url, setar pathname="/login"
     RETORNAR NextResponse.redirect(url)
 
+  SE pathname == "/gestor" E user existe FACA
+    clonar url, setar pathname="/gestor/dashboard"
+    RETORNAR NextResponse.redirect(url)
+
   SE pathname == "/login" E user existe FACA
     clonar url, setar pathname="/gestor/dashboard"
     RETORNAR NextResponse.redirect(url)

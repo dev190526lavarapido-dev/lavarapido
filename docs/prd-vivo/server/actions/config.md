@@ -21,7 +21,7 @@ TENTAR
 
 ## atualizarAparencia
 
-RECEBE: data (objeto: tema 'claro'|'escuro', cor_primaria string)
+RECEBE: data (objeto: tema 'claro'|'escuro', paleta 'esmeralda'|'oceano'|'sol-coral'|'lavanda'|'asfalto', cor_primaria string)
 RETORNA: { data?: ConfigLoja, error?: string }
 
 validar data com aparenciaSchema → ver [lib/validations.md](../../lib/validations.md)

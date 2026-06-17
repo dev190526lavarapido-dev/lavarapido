@@ -16,6 +16,15 @@ export type LavagemStatus =
   | "ocorrencia"
   | "retirado";
 
+/**
+ * Status de evento da linha do tempo (Timeline).
+ * Inclui todos os status de lavagem mais o marco 'entrada', que é inserido
+ * automaticamente em criarLavagem para registrar a chegada do veículo.
+ * 'entrada' não é um status de lavagem válido para transições, mas é um
+ * evento legítimo na timeline.
+ */
+export type EventoStatus = LavagemStatus | "entrada";
+
 export interface StatusMeta {
   label: string;
   icon: LucideIcon;

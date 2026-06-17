@@ -17,7 +17,7 @@ RECEBE: data (FormData)
 FACA
   setServerError(null)
   startTransition async
-    resultado = login(data) → server action auth
+    resultado = login(data) → ver [server/actions/auth.md](../server/actions/auth.md)
     SE resultado.error FACA
       setServerError(resultado.error)
 

@@ -19,6 +19,7 @@ Schema derivado dos tipos em `src/lib/types.ts` e das queries/actions do projeto
 - mensagem_whatsapp_padrao: texto
 - logo_url: texto | nulo
 - tema: "claro" | "escuro"
+- paleta: "esmeralda" | "oceano" | "sol-coral" | "lavanda" | "asfalto"
 - cor_primaria: texto
 - mensagens_etapas: jsonb (Record<string, string>)
 - created_at: timestamp

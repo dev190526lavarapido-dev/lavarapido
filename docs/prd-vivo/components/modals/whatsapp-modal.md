@@ -52,6 +52,10 @@ SE prevKey != currentKey (mudanca de props externas) FACA
   setActiveTipo(tipoProp)
   setMsg(buildMsg(tipoProp))
 
+AO MONTAR / AO MUDAR [loja, lavagem, msg, buildMsg, activeTipo] FACA
+  SE loja E lavagem E msg vazio FACA
+    setMsg(buildMsg(activeTipo))
+
 handlePreset (t)
   setActiveTipo(t)
   setMsg(buildMsg(t))

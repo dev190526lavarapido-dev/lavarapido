@@ -3,7 +3,7 @@
 ## CatalogoPage (async Server Component)
 
 BUSCA
-  servicos ← getServicos() → BD [banco_de_dados.md](../../banco_de_dados.md) → servicos
+  servicos ← getServicos() → ver [server/queries/servicos.md](../../server/queries/servicos.md) → BD [banco_de_dados.md](../../banco_de_dados.md) → servicos
 
 RENDERIZA
-  CatalogoView servicos=servicos (→ ver componente gestor/catalogo-view)
+  CatalogoView servicos=servicos → ver [components/gestor/catalogo-view.md](../../components/gestor/catalogo-view.md)

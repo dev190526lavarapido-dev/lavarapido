@@ -7,11 +7,16 @@ RETORNA: horario formatado HH:MM em pt-BR
 
 ---
 
+## TimelineEvento (tipo interno)
+- status: string
+- descricao?: string
+- created_at: string
+
+---
+
 ## Timeline
 
 RECEBE: eventos (TimelineEvento[]), animateLast? (boolean) = false
-
-tipo TimelineEvento: { status (string), descricao? (string), created_at (string) }
 
 mapa titleMap:
   entrada              → "Carro deu entrada"
@@ -31,6 +36,7 @@ mapa markerColors por className:
 
 RENDERIZA lista vertical com pl-3
   PARA CADA evento (indice i) FACA
+    meta = STATUS_META[ev.status] → ver [lib/constants.md](../../lib/constants.md)
     klass = SE status = 'entrada' ENTAO 'entrada' SENAO meta.className ?? 'entrada'
     IconComponent = SE status = 'entrada' ENTAO Car SENAO meta.icon ?? Car
     isLast = i = ultimo indice

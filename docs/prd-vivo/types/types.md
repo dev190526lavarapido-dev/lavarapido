@@ -14,6 +14,7 @@
 - mensagem_whatsapp_padrao: texto
 - logo_url: texto | nulo
 - tema: "claro" | "escuro"
+- paleta: "esmeralda" | "oceano" | "sol-coral" | "lavanda" | "asfalto"
 - cor_primaria: texto
 - mensagens_etapas: mapa { chave: texto → valor: texto }
 - created_at: texto
