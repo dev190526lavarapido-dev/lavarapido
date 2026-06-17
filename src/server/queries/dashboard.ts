@@ -1,13 +1,13 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
+import { inicioDiaBrasiliaISO } from '@/lib/datas'
 
 export async function getDashboardStats() {
   const supabase = await createClient()
 
-  const today = new Date()
-  today.setHours(0, 0, 0, 0)
-  const todayISO = today.toISOString()
+  // Fronteira do dia em Brasília (00:00 -03) — não no fuso do servidor (UTC).
+  const todayISO = inicioDiaBrasiliaISO()
 
   const lavagens = () => supabase.from('lavagens')
 
